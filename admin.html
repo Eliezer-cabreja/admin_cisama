@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cisama | Admin Panel</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  font-family:'Segoe UI',Arial,sans-serif;
+  color:white;
+  min-height:100vh;
+  position:relative;
+  background:#071426;
+  display:flex;
+  overflow-x:hidden;
+}
+
+/* Imagen de fondo */
+body:before{
+  content:"";
+  position:fixed;
+  inset:0;
+  background:url('templates/assets/fondo-admin.jpg') center/cover no-repeat;
+  z-index:-2;
+  filter:brightness(.3) saturate(.9);
+}
+body:after{
+  content:"";
+  position:fixed;
+  inset:0;
+  background:linear-gradient(180deg,#071426cc 0%,#071426ee 100%);
+  z-index:-1;
+}
+
+/* ================= SIDEBAR ================= */
+.sidebar{
+  width:260px;
+  min-height:100vh;
+  background:#0a192cdd;
+  border-right:1px solid #1c3552;
+  backdrop-filter:blur(14px);
+  -webkit-backdrop-filter:blur(14px);
+  padding:24px 18px;
+  display:flex;
+  flex-direction:column;
+  position:sticky;
+  top:0;
+  height:100vh;
+  z-index:10;
+  transition:transform .3s;
+}
+
+.sidebar-brand{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:8px 0 22px;
+  border-bottom:1px solid #ffffff0d;
+  margin-bottom:22px;
+}
+.sidebar-brand img{
+  height:60px;
+  width:auto;
+  max-width:200px;
+  object-fit:contain;
+  filter:drop-shadow(0 4px 12px #2476d966);
+}
+
+.sidebar-label{
+  font-size:10.5px;
+  color:#6f849e;
+  font-weight:700;
+  letter-spacing:1px;
+  text-transform:uppercase;
+  margin:0 8px 10px;
+}
+
+.sidebar-nav{
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+  flex:1;
+}
+.nav-tab{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  padding:12px 14px;
+  border-radius:10px;
+  color:#aebbd0;
+  text-decoration:none;
+  font-size:13.5px;
+  font-weight:600;
+  cursor:pointer;
+  transition:.25s;
+  border:1px solid transparent;
+}
+.nav-tab i{
+  font-size:14px;
+  width:18px;
+  text-align:center;
+  transition:.25s;
+}
+.nav-tab:hover{
+  background:#10243d;
+  color:white;
+}
+.nav-tab.active{
+  background:linear-gradient(135deg,#2476d9,#1455a5);
+  color:white;
+  border-color:#438eea55;
+  box-shadow:0 6px 18px #2476d955;
+}
+.nav-tab.active i{color:white}
+
+/* Info usuario abajo */
+.sidebar-footer{
+  border-top:1px solid #ffffff0d;
+  padding-top:16px;
+  margin-top:14px;
+}
+.user-box{
+  display:flex;
+  align-items:center;
+  gap:11px;
+  padding:10px;
+  border-radius:10px;
+  background:#071426cc;
+  border:1px solid #1c3552;
+  margin-bottom:10px;
+}
+.user-avatar{
+  width:36px;height:36px;
+  border-radius:50%;
+  background:linear-gradient(135deg,#2476d9,#1455a5);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:800;
+  font-size:13px;
+  flex-shrink:0;
+  box-shadow:0 4px 10px #2476d966;
+}
+.user-info{
+  overflow:hidden;
+  flex:1;
+}
+.user-name{
+  font-size:12.5px;
+  font-weight:700;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.user-role{
+  font-size:10.5px;
+  color:#6f849e;
+}
+.btn-logout{
+  width:100%;
+  padding:10px 14px;
+  border-radius:10px;
+  border:1px solid #ff4d4d55;
+  background:#ff4d4d15;
+  color:#ff9a9a;
+  font-size:12.5px;
+  font-weight:700;
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  transition:.25s;
+}
+.btn-logout:hover{
+  background:#ff4d4d25;
+  color:#ffb3b3;
+  transform:translateY(-1px);
+}
+
+/* ================= MAIN ================= */
+.main{
+  flex:1;
+  min-height:100vh;
+  padding:32px 40px;
+  overflow-x:hidden;
+}
+
+/* Topbar */
+.topbar{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:18px;
+  margin-bottom:28px;
+  padding-bottom:22px;
+  border-bottom:1px solid #1c3552;
+  flex-wrap:wrap;
+}
+.topbar-title h1{
+  font-size:26px;
+  font-weight:800;
+  letter-spacing:-.5px;
+}
+.topbar-title h1 span{color:#438eea}
+.topbar-title p{
+  color:#899bb5;
+  font-size:13px;
+  margin-top:5px;
+}
+
+/* Botón hamburguesa móvil */
+.menu-toggle{
+  display:none;
+  background:#0b1b30;
+  border:1px solid #1f3a5a;
+  color:white;
+  width:42px;height:42px;
+  border-radius:10px;
+  cursor:pointer;
+  font-size:16px;
+}
+
+/* ================= FORMULARIO ================= */
+.card{
+  background:linear-gradient(160deg,#0d2038dd,#0a192cdd);
+  border:1px solid #1c3552;
+  border-radius:16px;
+  padding:28px 28px 30px;
+  box-shadow:0 12px 40px #0006, inset 0 1px 0 #ffffff08;
+  backdrop-filter:blur(14px);
+  -webkit-backdrop-filter:blur(14px);
+  max-width:760px;
+}
+
+.card-head{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  margin-bottom:24px;
+  padding-bottom:18px;
+  border-bottom:1px solid #ffffff0d;
+}
+.card-head-icon{
+  width:42px;height:42px;
+  border-radius:11px;
+  background:linear-gradient(135deg,#2476d9,#1455a5);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:16px;
+  box-shadow:0 6px 16px #2476d955;
+}
+.card-head h2{
+  font-size:17px;
+  font-weight:800;
+  letter-spacing:-.3px;
+}
+.card-head p{
+  font-size:11.5px;
+  color:#8fa3bd;
+  margin-top:2px;
+}
+
+.form-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:16px;
+}
+.form-grid .full{grid-column:1/-1}
+
+.field label{
+  display:block;
+  font-size:11px;
+  color:#aebbd0;
+  font-weight:700;
+  margin-bottom:7px;
+  letter-spacing:.4px;
+  text-transform:uppercase;
+}
+.field label .req{color:#ff8585;margin-left:2px}
+.input-wrap{position:relative}
+.input-wrap > i{
+  position:absolute;
+  left:14px;
+  top:50%;
+  transform:translateY(-50%);
+  color:#7f93ad;
+  font-size:13px;
+  pointer-events:none;
+  transition:color .25s;
+}
+.input-wrap textarea + i{
+  top:16px;
+  transform:none;
+}
+.input-wrap input,
+.input-wrap textarea,
+.input-wrap select{
+  width:100%;
+  background:#071426cc;
+  border:1px solid #1f3a5a;
+  border-radius:10px;
+  color:white;
+  padding:12px 14px 12px 40px;
+  outline:none;
+  font-size:13px;
+  font-family:inherit;
+  transition:.25s;
+}
+.input-wrap input,
+.input-wrap select{height:46px}
+.input-wrap textarea{
+  min-height:96px;
+  resize:vertical;
+  line-height:1.5;
+}
+.input-wrap input::placeholder,
+.input-wrap textarea::placeholder{color:#5e7593}
+.input-wrap input:focus,
+.input-wrap textarea:focus,
+.input-wrap select:focus{
+  border-color:#438eea;
+  background:#0b1b30;
+  box-shadow:0 0 0 4px #438eea22;
+}
+.input-wrap input:focus ~ i,
+.input-wrap textarea:focus ~ i,
+.input-wrap:focus-within > i{color:#438eea}
+
+.input-wrap select{
+  padding-right:34px;
+  appearance:none;
+  -webkit-appearance:none;
+  cursor:pointer;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%237f93ad' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
+  background-repeat:no-repeat;
+  background-position:right 14px center;
+}
+.input-wrap select option{background:#0b1b30;color:#dce8f8}
+
+/* File input custom */
+.file-input{
+  position:relative;
+  border:1.5px dashed #2a4a6e;
+  border-radius:10px;
+  padding:20px;
+  text-align:center;
+  cursor:pointer;
+  transition:.25s;
+  background:#07142666;
+}
+.file-input:hover{
+  border-color:#438eea;
+  background:#0b1b3080;
+}
+.file-input input{
+  position:absolute;
+  inset:0;
+  opacity:0;
+  cursor:pointer;
+}
+.file-input .file-icon{
+  font-size:24px;
+  color:#438eea;
+  margin-bottom:8px;
+  display:block;
+}
+.file-input .file-text{
+  font-size:12.5px;
+  color:#aebbd0;
+  font-weight:600;
+}
+.file-input .file-hint{
+  font-size:10.5px;
+  color:#6f849e;
+  margin-top:4px;
+}
+.file-preview{
+  display:none;
+  margin-top:12px;
+  border-radius:10px;
+  overflow:hidden;
+  border:1px solid #1c3552;
+  max-width:180px;
+}
+.file-preview img{
+  width:100%;
+  display:block;
+}
+
+/* Botones */
+.form-actions{
+  display:flex;
+  gap:12px;
+  margin-top:24px;
+  padding-top:20px;
+  border-top:1px solid #ffffff0d;
+  flex-wrap:wrap;
+}
+.btn{
+  height:46px;
+  padding:0 22px;
+  border:0;
+  border-radius:10px;
+  font-weight:700;
+  font-size:13px;
+  cursor:pointer;
+  display:inline-flex;
+  align-items:center;
+  gap:9px;
+  transition:.25s;
+  letter-spacing:.3px;
+}
+.btn-primary{
+  background:linear-gradient(135deg,#2476d9,#1455a5);
+  color:white;
+  box-shadow:0 8px 20px #2476d955, inset 0 1px 0 #ffffff33;
+}
+.btn-primary:hover:not(:disabled){
+  transform:translateY(-2px);
+  box-shadow:0 12px 26px #2476d966, inset 0 1px 0 #ffffff33;
+}
+.btn-primary:disabled{opacity:.6;cursor:not-allowed}
+.btn-secondary{
+  background:#0b1b30;
+  color:#dce8f8;
+  border:1px solid #1f3a5a;
+}
+.btn-secondary:hover{
+  background:#10243d;
+  border-color:#2a4a6e;
+}
+
+/* Mensaje */
+.msg{
+  display:none;
+  margin-top:18px;
+  padding:12px 14px;
+  border-radius:10px;
+  font-size:13px;
+  align-items:center;
+  gap:10px;
+}
+.msg.show{display:flex}
+.msg.error{
+  background:#ff4d4d18;
+  border:1px solid #ff4d4d55;
+  color:#ff9a9a;
+}
+.msg.success{
+  background:#65cf9a18;
+  border:1px solid #65cf9a55;
+  color:#8be4b5;
+}
+
+/* Overlay sidebar móvil */
+.overlay{
+  display:none;
+  position:fixed;
+  inset:0;
+  background:#0009;
+  z-index:5;
+}
+.overlay.show{display:block}
+
+/* ================= RESPONSIVE ================= */
+@media(max-width:900px){
+  .sidebar{
+    position:fixed;
+    left:0;top:0;
+    transform:translateX(-100%);
+    box-shadow:8px 0 30px #0009;
+  }
+  .sidebar.open{transform:translateX(0)}
+  .main{padding:24px 20px}
+  .menu-toggle{display:flex;align-items:center;justify-content:center}
+  .form-grid{grid-template-columns:1fr}
+}
+@media(max-width:430px){
+  .main{padding:20px 14px}
+  .topbar-title h1{font-size:21px}
+  .topbar-title p{font-size:12px}
+  .card{padding:22px 18px 24px;border-radius:14px}
+  .card-head h2{font-size:15px}
+  .btn{width:100%;justify-content:center}
+  .form-actions{flex-direction:column-reverse}
+}
+</style>
+</head>
+
+<body>
+
+<!-- Overlay para cerrar sidebar en móvil -->
+<div class="overlay" id="overlay"></div>
+
+<!-- ================= SIDEBAR ================= -->
+<aside class="sidebar" id="sidebar">
+
+  <div class="sidebar-brand">
+    <img src="templates/assets/logo.png" alt="Cisama">
+  </div>
+
+  <div class="sidebar-label">Menú</div>
+
+  <nav class="sidebar-nav">
+    <a class="nav-tab active" data-tab="agregar">
+      <i class="fa-solid fa-plus"></i>
+      Agregar Productos
+    </a>
+  </nav>
+
+  <div class="sidebar-footer">
+    <div class="user-box">
+      <div class="user-avatar" id="userAvatar">A</div>
+      <div class="user-info">
+        <div class="user-name" id="userName">Admin</div>
+        <div class="user-role">Administrador</div>
+      </div>
+    </div>
+    <button class="btn-logout" id="btnLogout">
+      <i class="fa-solid fa-right-from-bracket"></i>
+      Cerrar sesión
+    </button>
+  </div>
+
+</aside>
+
+<!-- ================= MAIN ================= -->
+<main class="main">
+
+  <div class="topbar">
+    <div style="display:flex;align-items:center;gap:14px">
+      <button class="menu-toggle" id="menuToggle" aria-label="Menú">
+        <i class="fa-solid fa-bars"></i>
+      </button>
+      <div class="topbar-title">
+        <h1>Agregar <span>Producto</span></h1>
+        <p>Añade nuevos productos a la tienda de Cisama</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+
+    <div class="card-head">
+      <div class="card-head-icon">
+        <i class="fa-solid fa-box-open"></i>
+      </div>
+      <div>
+        <h2>Nuevo Producto</h2>
+        <p>Completa los datos para publicarlo en la tienda</p>
+      </div>
+    </div>
+
+    <form id="productForm" autocomplete="off">
+
+      <div class="form-grid">
+
+        <div class="field full">
+          <label for="name">Nombre del producto <span class="req">*</span></label>
+          <div class="input-wrap">
+            <input type="text" id="name" placeholder="Ej: Camisa oficial del liceo" required>
+            <i class="fa-solid fa-tag"></i>
+          </div>
+        </div>
+
+        <div class="field full">
+          <label for="description">Descripción <span class="req">*</span></label>
+          <div class="input-wrap">
+            <textarea id="description" placeholder="Describe el producto brevemente..." required></textarea>
+            <i class="fa-solid fa-align-left"></i>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="price">Precio (RD$) <span class="req">*</span></label>
+          <div class="input-wrap">
+            <input type="number" id="price" placeholder="0.00" step="0.01" min="0" required>
+            <i class="fa-solid fa-dollar-sign"></i>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="stock">Stock disponible <span class="req">*</span></label>
+          <div class="input-wrap">
+            <input type="number" id="stock" placeholder="0" min="0" step="1" required>
+            <i class="fa-solid fa-boxes-stacked"></i>
+          </div>
+        </div>
+
+        <div class="field full">
+          <label for="category">Categoría <span class="req">*</span></label>
+          <div class="input-wrap">
+            <select id="category" required>
+              <option value="">Selecciona una categoría</option>
+              <option value="Uniformes">Uniformes</option>
+              <option value="Camisas">Camisas</option>
+              <option value="Pantalones">Pantalones</option>
+              <option value="Accesorios">Accesorios</option>
+              <option value="Calzado">Calzado</option>
+              <option value="Otros">Otros</option>
+            </select>
+            <i class="fa-solid fa-layer-group"></i>
+          </div>
+        </div>
+
+        <div class="field full">
+          <label>Imagen del producto</label>
+          <div class="file-input">
+            <input type="file" id="image" accept="image/*">
+            <i class="fa-solid fa-cloud-arrow-up file-icon"></i>
+            <div class="file-text" id="fileText">Haz clic para seleccionar imagen</div>
+            <div class="file-hint">JPG, PNG o WEBP (máx. 5MB)</div>
+          </div>
+          <div class="file-preview" id="filePreview">
+            <img id="previewImg" src="" alt="Preview">
+          </div>
+        </div>
+
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary" id="btnSubmit">
+          <i class="fa-solid fa-plus"></i>
+          Agregar Producto
+        </button>
+        <button type="reset" class="btn btn-secondary" id="btnReset">
+          <i class="fa-solid fa-rotate-left"></i>
+          Limpiar
+        </button>
+      </div>
+
+      <div class="msg" id="msg"></div>
+
+    </form>
+
+  </div>
+
+</main>
+
+<script>
+
+// ============================
+// CONFIGURACIÓN
+// ============================
+const LOGIN_URL = "login.html"; // cambia si tu login tiene otra ruta
+const API_PRODUCTOS = "https://api-chicken-runner.monitorealo.online/api/productos";
+
+// ============================
+// VERIFICAR TOKEN AL CARGAR
+// ============================
+const token = localStorage.getItem('adminToken') || sessionStorage.getItem('adminToken');
+const adminName = localStorage.getItem('adminName') || sessionStorage.getItem('adminName') || 'Admin';
+
+if(!token){
+  window.location.href = LOGIN_URL;
+}
+
+// Mostrar nombre en el sidebar
+document.getElementById('userName').textContent = adminName;
+document.getElementById('userAvatar').textContent = (adminName[0] || 'A').toUpperCase();
+
+// ============================
+// CERRAR SESIÓN
+// ============================
+document.getElementById('btnLogout').addEventListener('click', () => {
+  localStorage.removeItem('adminToken');
+  localStorage.removeItem('adminName');
+  sessionStorage.removeItem('adminToken');
+  sessionStorage.removeItem('adminName');
+  window.location.href = LOGIN_URL;
+});
+
+// ============================
+// SIDEBAR MÓVIL
+// ============================
+const sidebar = document.getElementById('sidebar');
+const overlay = document.getElementById('overlay');
+const menuToggle = document.getElementById('menuToggle');
+
+menuToggle.addEventListener('click', () => {
+  sidebar.classList.add('open');
+  overlay.classList.add('show');
+});
+overlay.addEventListener('click', () => {
+  sidebar.classList.remove('open');
+  overlay.classList.remove('show');
+});
+
+// ============================
+// TABS
+// ============================
+document.querySelectorAll('.nav-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    // Aquí irás agregando lógica cuando tengas más tabs
+  });
+});
+
+// ============================
+// PREVIEW DE IMAGEN
+// ============================
+const imageInput = document.getElementById('image');
+const fileText = document.getElementById('fileText');
+const filePreview = document.getElementById('filePreview');
+const previewImg = document.getElementById('previewImg');
+
+imageInput.addEventListener('change', () => {
+  const file = imageInput.files[0];
+  if(!file){
+    fileText.textContent = 'Haz clic para seleccionar imagen';
+    filePreview.style.display = 'none';
+    return;
+  }
+  fileText.textContent = file.name;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    previewImg.src = e.target.result;
+    filePreview.style.display = 'block';
+  };
+  reader.readAsDataURL(file);
+});
+
+// ============================
+// MENSAJES
+// ============================
+const msg = document.getElementById('msg');
+function mostrarMsg(texto, tipo){
+  msg.className = 'msg show ' + tipo;
+  msg.innerHTML = `<i class="fa-solid ${tipo==='error'?'fa-circle-exclamation':'fa-circle-check'}"></i><span>${texto}</span>`;
+}
+function ocultarMsg(){
+  msg.className = 'msg';
+  msg.innerHTML = '';
+}
+
+// ============================
+// SUBMIT FORMULARIO
+// ============================
+const form = document.getElementById('productForm');
+const btnSubmit = document.getElementById('btnSubmit');
+
+form.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  ocultarMsg();
+
+  const name = document.getElementById('name').value.trim();
+  const description = document.getElementById('description').value.trim();
+  const price = parseFloat(document.getElementById('price').value);
+  const stock = parseInt(document.getElementById('stock').value);
+  const category = document.getElementById('category').value;
+  const imageFile = imageInput.files[0];
+
+  if(!name || !description || !category){
+    mostrarMsg('Completa todos los campos obligatorios', 'error');
+    return;
+  }
+  if(!Number.isFinite(price) || price < 0){
+    mostrarMsg('El precio debe ser un número válido', 'error');
+    return;
+  }
+  if(!Number.isFinite(stock) || stock < 0){
+    mostrarMsg('El stock debe ser un número válido', 'error');
+    return;
+  }
+
+  btnSubmit.disabled = true;
+  btnSubmit.innerHTML = '<span>Guardando...</span><i class="fa-solid fa-spinner fa-spin"></i>';
+
+  try {
+    // Construimos FormData (necesario si se sube imagen)
+    const formData = new FormData();
+    formData.append('name', name);
+    formData.append('description', description);
+    formData.append('price', price);
+    formData.append('stock', stock);
+    formData.append('category', category);
+    if(imageFile){
+      formData.append('image', imageFile);
+    }
+
+    // ⚠️ Ajusta el endpoint según tu backend real
+    const res = await fetch(API_PRODUCTOS, {
+      method: 'POST',
+      headers: {
+        'Authorization': 'Bearer ' + token
+        // NO poner Content-Type: el navegador lo pone solo con FormData
+      },
+      body: formData
+    });
+
+    let data;
+    try { data = await res.json(); }
+    catch { throw new Error('Respuesta inválida del servidor'); }
+
+    if(!res.ok || data.status === false){
+      throw new Error(data.mensaje || 'No se pudo agregar el producto');
+    }
+
+    mostrarMsg(data.mensaje || '¡Producto agregado con éxito!', 'success');
+    form.reset();
+    fileText.textContent = 'Haz clic para seleccionar imagen';
+    filePreview.style.display = 'none';
+
+  } catch (err) {
+    console.error('Error al agregar producto:', err);
+    mostrarMsg(err.message || 'Error al guardar el producto', 'error');
+  } finally {
+    btnSubmit.disabled = false;
+    btnSubmit.innerHTML = '<i class="fa-solid fa-plus"></i> Agregar Producto';
+  }
+});
+
+// Botón reset limpia preview
+document.getElementById('btnReset').addEventListener('click', () => {
+  fileText.textContent = 'Haz clic para seleccionar imagen';
+  filePreview.style.display = 'none';
+  ocultarMsg();
+});
+
+</script>
+
+</body>
+</html>
