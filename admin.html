@@ -391,32 +391,49 @@ body:after{
 }
 .input-wrap select option{background:#0b1b30;color:#dce8f8}
 
-/* ================= BOTÓN DE SUBIR IMAGEN ================= */
+/* ================= BOTÓN DE SUBIR IMAGEN MEJORADO ================= */
 .file-btn-wrap{
   display:inline-block;
 }
 .file-btn{
   display:inline-flex;
   align-items:center;
-  gap:8px;
-  height:42px;
-  padding:0 16px;
-  background:#16324f;
-  border:1px solid #2a4a6e;
+  gap:10px;
+  height:44px;
+  padding:0 20px;
+  background:linear-gradient(135deg, #1f3a5a, #0d1c30);
+  border:1px dashed #438eea;
   border-radius:8px;
-  color:#dce8f8;
-  font-size:12.5px;
+  color:#8dc2ff;
+  font-size:13px;
   font-weight:600;
   cursor:pointer;
-  transition:.2s;
+  transition:all .25s ease;
+  box-shadow: 0 4px 10px #0003;
 }
 .file-btn:hover{
-  background:#1f3a5a;
+  background:linear-gradient(135deg, #2476d9, #16324f);
   border-color:#438eea;
   color:white;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px #2476d966;
+}
+.file-btn i{
+  font-size:16px;
 }
 .file-btn input{
   display:none;
+}
+
+/* Cuando ya hay imagen seleccionada */
+.file-btn.has-file{
+  background:#16324f;
+  border-style:solid;
+  border-color:#65cf9a;
+  color:#8be4b5;
+}
+.file-btn.has-file i{
+  color:#65cf9a;
 }
 
 .file-preview{
@@ -650,9 +667,9 @@ body:after{
           <label>Imagen del producto</label>
           <!-- BOTÓN PARA SUBIR IMAGEN -->
           <div class="file-btn-wrap">
-            <label class="file-btn">
+            <label class="file-btn" id="fileBtnLabel">
               <input type="file" id="image" accept="image/*">
-              <i class="fa-solid fa-cloud-arrow-up"></i>
+              <i class="fa-solid fa-folder-open" id="fileIcon"></i>
               <span id="fileText">Seleccionar Imagen</span>
             </label>
           </div>
@@ -754,10 +771,12 @@ document.querySelectorAll('.nav-tab').forEach(tab => {
 });
 
 // ============================
-// PREVIEW IMAGEN
+// PREVIEW IMAGEN Y ESTILOS DEL BOTÓN
 // ============================
 const imageInput = document.getElementById('image');
 const fileText = document.getElementById('fileText');
+const fileBtnLabel = document.getElementById('fileBtnLabel');
+const fileIcon = document.getElementById('fileIcon');
 const filePreview = document.getElementById('filePreview');
 const previewImg = document.getElementById('previewImg');
 
@@ -765,10 +784,18 @@ imageInput.addEventListener('change', () => {
   const file = imageInput.files[0];
   if(!file){
     fileText.textContent = 'Seleccionar Imagen';
+    fileIcon.className = 'fa-solid fa-folder-open';
+    fileBtnLabel.classList.remove('has-file');
     filePreview.style.display = 'none';
     return;
   }
+  
+  // Cambiamos el texto y el ícono para dar feedback visual
   fileText.textContent = file.name;
+  fileIcon.className = 'fa-solid fa-check-circle';
+  fileBtnLabel.classList.add('has-file');
+
+  // Mostramos la previsualización
   const reader = new FileReader();
   reader.onload = (e) => {
     previewImg.src = e.target.result;
@@ -855,6 +882,8 @@ form.addEventListener('submit', async (e) => {
     // Limpia el form automáticamente
     form.reset();
     fileText.textContent = 'Seleccionar Imagen';
+    fileIcon.className = 'fa-solid fa-folder-open';
+    fileBtnLabel.classList.remove('has-file');
     filePreview.style.display = 'none';
 
   } catch (err) {
