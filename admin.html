@@ -1074,4 +1074,25 @@ form.addEventListener('submit', async (e) => {
       throw new Error(data.mensaje || 'No se pudo agregar el producto');
     }
 
-    mostrarMsg(data.mensaje || '¡Producto
+    mostrarMsg(data.mensaje || '¡Producto agregado con éxito!', 'success');
+
+    // Limpia el form
+    form.reset();
+    fileText.textContent = 'Seleccionar Imagen';
+    fileIcon.className = 'fa-solid fa-folder-open';
+    fileBtnLabel.classList.remove('has-file');
+    filePreview.style.display = 'none';
+
+  } catch (err) {
+    console.error('Error al agregar producto:', err);
+    mostrarMsg(err.message || 'Error al guardar el producto', 'error');
+  } finally {
+    btnSubmit.disabled = false;
+    btnSubmit.innerHTML = '<i class="fa-solid fa-plus"></i> Agregar Producto';
+  }
+});
+
+</script>
+
+</body>
+</html>
