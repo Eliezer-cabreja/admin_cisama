@@ -93,7 +93,7 @@ body:after{
   font-weight:500;
   cursor:pointer;
   transition:.2s;
-  user-select:none; /* Evita que se seleccione el texto al hacer doble clic */
+  user-select:none;
 }
 .nav-tab i{
   font-size:13px;
@@ -798,14 +798,16 @@ const API_PRODUCTOS = "https://api-chicken-runner.monitorealo.online/api/agregar
 const API_GET_PRODUCTOS = "https://api-chicken-runner.monitorealo.online/api/productos";
 
 // ============================
-// VERIFICAR TOKEN
+// VERIFICAR TOKEN (COMENTADO PARA PROBAR)
 // ============================
 const token = localStorage.getItem('adminToken') || sessionStorage.getItem('adminToken');
 const adminName = localStorage.getItem('adminName') || sessionStorage.getItem('adminName') || 'Admin';
 
+/*
 if(!token){
   window.location.href = LOGIN_URL;
 }
+*/
 
 document.getElementById('userName').textContent = adminName;
 document.getElementById('userAvatar').textContent = (adminName[0] || 'A').toUpperCase();
@@ -858,7 +860,7 @@ const tabs = document.querySelectorAll('.nav-tab');
 
 tabs.forEach(tab => {
   tab.addEventListener('click', (e) => {
-    e.preventDefault(); // Previene cualquier acción por defecto
+    e.preventDefault(); 
     
     // 1. Cambiar tab activo en el menú
     tabs.forEach(t => t.classList.remove('active'));
@@ -930,12 +932,14 @@ async function cargarTablaProductos() {
     tbody.innerHTML = '';
     productos.forEach(p => {
       const tr = document.createElement('tr');
-      
       const precioFormat = parseFloat(p.price).toLocaleString('es-DO', { minimumFractionDigits: 2 });
       
+      // SOLUCIÓN AL ERROR: Usar una imagen por defecto limpia sin comillas raras
+      const urlImagen = p.image ? p.image : 'https://via.placeholder.com/42x42/071426/438eea?text=IMG';
+
       tr.innerHTML = `
         <td>
-          <img src="${p.image || 'data:image/svg+xml;utf8,<svg xmlns=\\'http://www.w3.org/2000/svg\\' width=\\'42\\' height=\\'42\\'><rect width=\\'42\\' height=\\'42\\' fill=\\'%23071426\\'/></svg>'}" class="tbl-img" alt="img">
+          <img src="${urlImagen}" class="tbl-img" alt="img">
         </td>
         <td class="tbl-name">${p.name}</td>
         <td><span class="tbl-cat">${p.category}</span></td>
@@ -973,13 +977,11 @@ async function cargarTablaProductos() {
 // ============================
 function editarProducto(id) {
   alert(`Aquí irá la lógica para editar el producto con ID: ${id}`);
-  // Aquí conectarás tu API de editar
 }
 
 function eliminarProducto(id) {
   if(confirm(`¿Estás seguro que deseas eliminar el producto con ID ${id}?`)){
     alert(`Aquí irá la lógica para eliminar el producto con ID: ${id}`);
-    // Aquí conectarás tu API de eliminar
   }
 }
 
