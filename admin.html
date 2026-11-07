@@ -227,7 +227,7 @@ body:after{
   background:#0d1c30;
   border:1px solid #1a2c42;
   border-radius:10px;
-  min-width:200px;
+  min-width:180px;
   padding:6px;
   box-shadow:0 12px 30px #0008;
   opacity:0;
@@ -271,11 +271,6 @@ body:after{
   width:16px;
   text-align:center;
   font-size:12.5px;
-}
-.profile-menu-divider{
-  height:1px;
-  background:#1a2c42;
-  margin:5px 0;
 }
 
 /* ================= VISTAS (TABS) ================= */
@@ -816,11 +811,7 @@ tr:hover td{ background:#101f33; }
       </button>
 
       <div class="profile-menu">
-        <button class="profile-menu-item" onclick="alert('Próximamente: Mi perfil')">
-          <i class="fa-solid fa-user"></i>
-          Mi perfil
-        </button>
-        <div class="profile-menu-divider"></div>
+        <!-- SOLO DEJAMOS CERRAR SESIÓN -->
         <button class="profile-menu-item danger" id="btnLogout">
           <i class="fa-solid fa-right-from-bracket"></i>
           Cerrar sesión
@@ -1255,7 +1246,6 @@ document.getElementById('btnConfirmDelete').addEventListener('click', async () =
   btn.disabled = true;
 
   try {
-    // CONEXIÓN CON LA API REAL DE ELIMINAR (MÉTODO DELETE)
     const res = await fetch(API_ELIMINAR_PRODUCTO, {
       method: 'DELETE',
       headers: {
@@ -1269,13 +1259,12 @@ document.getElementById('btnConfirmDelete').addEventListener('click', async () =
 
     const data = await res.json();
 
-    // Validamos que el servidor nos diga que todo bien (o status 205 como pusiste en Python)
     if(!res.ok && data.status === false) {
       throw new Error(data.mensaje || 'No se pudo eliminar el producto');
     }
 
     cerrarModalEliminar();
-    cargarTablaProductos(); // Recargamos la tabla
+    cargarTablaProductos(); 
     mostrarToast(data.mensaje || "Producto eliminado correctamente", "success");
     
   } catch (error) {
