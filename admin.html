@@ -472,18 +472,6 @@ body:after{
 .btn-primary:hover:not(:disabled){ background:#2f8bf0; }
 .btn-primary:disabled{opacity:.6;cursor:not-allowed}
 
-/* Mensaje */
-.msg{ display:none; margin-top:16px; font-size:12.5px; align-items:center; gap:9px; }
-.msg.show{display:flex}
-.msg.error{
-  padding:11px 13px;
-  border-radius:8px;
-  background:#ff4d4d18;
-  border:1px solid #ff4d4d55;
-  color:#ff9a9a;
-}
-.msg.success{ color:#65cf9a; font-weight:600; }
-
 /* ================= TABLA DE PRODUCTOS ================= */
 .table-container{
   background:#0d1c30;
@@ -613,7 +601,6 @@ tr:hover td{ background:#101f33; }
   transform: translateY(0) scale(1);
 }
 
-/* Cabecera del modal */
 .modal-header {
   display: flex;
   align-items: center;
@@ -646,7 +633,6 @@ tr:hover td{ background:#101f33; }
   color: #7f93ad;
 }
 
-/* Cuerpo del modal */
 .modal-body {
   padding: 24px;
 }
@@ -659,7 +645,6 @@ tr:hover td{ background:#101f33; }
   color: white;
 }
 
-/* Footer del modal */
 .modal-footer {
   display: flex;
   justify-content: flex-end;
@@ -687,7 +672,6 @@ tr:hover td{ background:#101f33; }
   box-shadow: 0 4px 12px #ff4d4d55;
 }
 
-/* Formulario dentro del modal (Editar) */
 .modal-form .form-grid {
   gap: 12px;
 }
@@ -701,6 +685,51 @@ tr:hover td{ background:#101f33; }
 }
 .modal-form .input-wrap > i { left: 12px; font-size: 11px; }
 
+/* ================= TOAST NOTIFICATIONS ================= */
+.toast-container {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  pointer-events: none;
+}
+.toast {
+  background: #0d1c30;
+  border: 1px solid #1a2c42;
+  border-radius: 10px;
+  padding: 14px 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 0 10px 30px #0008;
+  color: white;
+  font-size: 13.5px;
+  font-weight: 500;
+  transform: translateX(120%);
+  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  pointer-events: auto;
+}
+.toast.show {
+  transform: translateX(0);
+}
+.toast i {
+  font-size: 18px;
+}
+.toast.success {
+  border-left: 3px solid #65cf9a;
+}
+.toast.success i {
+  color: #65cf9a;
+}
+.toast.error {
+  border-left: 3px solid #ff4d4d;
+}
+.toast.error i {
+  color: #ff4d4d;
+}
 
 /* ================= RESPONSIVE ================= */
 @media(max-width:900px){
@@ -717,6 +746,8 @@ tr:hover td{ background:#101f33; }
   .profile-info{display:none}
   .profile-btn{padding:5px}
   .profile-btn .chev{display:none}
+  .toast-container { bottom: 14px; right: 14px; left: 14px; }
+  .toast { font-size: 12.5px; padding: 12px 16px; }
 }
 @media(max-width:430px){
   .main{padding:18px 14px 28px}
@@ -733,6 +764,9 @@ tr:hover td{ background:#101f33; }
 <body>
 
 <div class="overlay" id="overlay"></div>
+
+<!-- CONTENEDOR DE NOTIFICACIONES (TOASTS) -->
+<div class="toast-container" id="toastContainer"></div>
 
 <!-- ================= SIDEBAR ================= -->
 <aside class="sidebar" id="sidebar">
@@ -879,8 +913,6 @@ tr:hover td{ background:#101f33; }
             Agregar Producto
           </button>
         </div>
-
-        <div class="msg" id="msg"></div>
       </form>
     </div>
   </div>
@@ -1008,6 +1040,29 @@ const LOGIN_URL = "index.html";
 const API_AGREGAR_PRODUCTO = "https://api-chicken-runner.monitorealo.online/api/agregar_producto";
 const API_GET_PRODUCTOS = "https://api-chicken-runner.monitorealo.online/api/productos";
 const API_EDITAR_PRODUCTO = "https://api-chicken-runner.monitorealo.online/api/editar_productos";
+
+// ============================
+// TOASTS (MENSAJES FLOTANTES)
+// ============================
+function mostrarToast(mensaje, tipo) {
+  const container = document.getElementById('toastContainer');
+  const toast = document.createElement('div');
+  toast.className = `toast ${tipo}`; // 'success' o 'error'
+  
+  const icon = tipo === 'success' ? 'fa-circle-check' : 'fa-circle-exclamation';
+  toast.innerHTML = `<i class="fa-solid ${icon}"></i> <span>${mensaje}</span>`;
+  
+  container.appendChild(toast);
+  
+  // Animación de entrada
+  setTimeout(() => toast.classList.add('show'), 10);
+  
+  // Desaparece a los 3.5 segundos
+  setTimeout(() => {
+    toast.classList.remove('show');
+    setTimeout(() => toast.remove(), 300); // Espera a que termine la animación de salida para borrarlo del DOM
+  }, 3500);
+}
 
 // ============================
 // VERIFICAR TOKEN
@@ -1208,9 +1263,10 @@ document.getElementById('btnConfirmDelete').addEventListener('click', async () =
     
     cerrarModalEliminar();
     cargarTablaProductos(); 
+    mostrarToast("Producto eliminado con éxito", "success");
     
   } catch (error) {
-    alert("Error al eliminar: " + error.message);
+    mostrarToast("Error al eliminar: " + error.message, "error");
   } finally {
     btn.innerHTML = '<i class="fa-solid fa-trash"></i> Sí, eliminar';
     btn.disabled = false;
@@ -1266,10 +1322,10 @@ document.getElementById('btnConfirmEdit').addEventListener('click', async (e) =>
       body: JSON.stringify({
         id: id,
         name: name,
-        descripcion: description, // Tu API lo espera como "descripcion"
-        precio: price,            // Tu API lo espera como "precio"
+        descripcion: description, // Mapeado para tu API
+        precio: price,            // Mapeado para tu API
         stock: stock,
-        categoria: category       // Tu API lo espera como "categoria"
+        categoria: category       // Mapeado para tu API
       })
     });
 
@@ -1281,11 +1337,12 @@ document.getElementById('btnConfirmEdit').addEventListener('click', async (e) =>
 
     // Si todo sale bien
     cerrarModalEditar();
-    cargarTablaProductos(); // Recargamos la tabla para ver los cambios
+    cargarTablaProductos(); // Recargamos la tabla
+    mostrarToast(data.mensaje || "Producto actualizado correctamente", "success");
     
   } catch (error) {
     console.error("Error al editar:", error);
-    alert("Error al editar: " + error.message);
+    mostrarToast("Error al editar: " + error.message, "error");
   } finally {
     btn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Guardar cambios';
     btn.disabled = false;
@@ -1302,7 +1359,7 @@ document.querySelectorAll('.modal-overlay').forEach(overlay => {
 });
 
 // ============================
-// PREVIEW IMAGEN (FORMULARIO AGREGAR)
+// PREVIEW IMAGEN
 // ============================
 const imageInput = document.getElementById('image');
 const fileText = document.getElementById('fileText');
@@ -1334,19 +1391,6 @@ imageInput.addEventListener('change', () => {
 });
 
 // ============================
-// MENSAJES (FORMULARIO AGREGAR)
-// ============================
-const msg = document.getElementById('msg');
-function mostrarMsg(texto, tipo){
-  msg.className = 'msg show ' + tipo;
-  msg.innerHTML = `<i class="fa-solid ${tipo==='error'?'fa-circle-exclamation':'fa-circle-check'}"></i><span>${texto}</span>`;
-}
-function ocultarMsg(){
-  msg.className = 'msg';
-  msg.innerHTML = '';
-}
-
-// ============================
 // SUBMIT AGREGAR
 // ============================
 const form = document.getElementById('productForm');
@@ -1354,7 +1398,6 @@ const btnSubmit = document.getElementById('btnSubmit');
 
 form.addEventListener('submit', async (e) => {
   e.preventDefault();
-  ocultarMsg();
 
   const name = document.getElementById('name').value.trim();
   const description = document.getElementById('description').value.trim();
@@ -1364,7 +1407,7 @@ form.addEventListener('submit', async (e) => {
   const imageFile = imageInput.files[0];
 
   if(!name || !description || !category){
-    mostrarMsg('Completa todos los campos obligatorios', 'error');
+    mostrarToast('Completa todos los campos obligatorios', 'error');
     return;
   }
 
@@ -1393,7 +1436,7 @@ form.addEventListener('submit', async (e) => {
       throw new Error(data.mensaje || 'No se pudo agregar el producto');
     }
 
-    mostrarMsg(data.mensaje || '¡Producto agregado con éxito!', 'success');
+    mostrarToast(data.mensaje || '¡Producto agregado con éxito!', 'success');
 
     // Limpia el form
     form.reset();
@@ -1404,7 +1447,7 @@ form.addEventListener('submit', async (e) => {
 
   } catch (err) {
     console.error('Error al agregar producto:', err);
-    mostrarMsg(err.message || 'Error al guardar el producto', 'error');
+    mostrarToast(err.message || 'Error al guardar el producto', 'error');
   } finally {
     btnSubmit.disabled = false;
     btnSubmit.innerHTML = '<i class="fa-solid fa-plus"></i> Agregar Producto';
