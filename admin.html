@@ -277,7 +277,15 @@ body:after{
   margin:5px 0;
 }
 
-/* ================= FORMULARIO ================= */
+/* ================= VISTAS (TABS) ================= */
+.tab-content{display:none; animation: fadeIn .2s ease;}
+.tab-content.active{display:block;}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ================= FORMULARIO (AGREGAR) ================= */
 .card{
   background:#0d1c30;
   border:1px solid #1a2c42;
@@ -285,7 +293,6 @@ body:after{
   padding:24px 26px 26px;
   max-width:760px;
 }
-
 .card-head{
   display:flex;
   align-items:center;
@@ -391,10 +398,8 @@ body:after{
 }
 .input-wrap select option{background:#0b1b30;color:#dce8f8}
 
-/* ================= BOTÓN DE SUBIR IMAGEN MEJORADO ================= */
-.file-btn-wrap{
-  display:inline-block;
-}
+/* Botón de subir imagen */
+.file-btn-wrap{ display:inline-block; }
 .file-btn{
   display:inline-flex;
   align-items:center;
@@ -418,23 +423,15 @@ body:after{
   transform: translateY(-2px);
   box-shadow: 0 6px 15px #2476d966;
 }
-.file-btn i{
-  font-size:16px;
-}
-.file-btn input{
-  display:none;
-}
-
-/* Cuando ya hay imagen seleccionada */
+.file-btn i{ font-size:16px; }
+.file-btn input{ display:none; }
 .file-btn.has-file{
   background:#16324f;
   border-style:solid;
   border-color:#65cf9a;
   color:#8be4b5;
 }
-.file-btn.has-file i{
-  color:#65cf9a;
-}
+.file-btn.has-file i{ color:#65cf9a; }
 
 .file-preview{
   display:none;
@@ -444,10 +441,7 @@ body:after{
   border:1px solid #1a2c42;
   max-width:160px;
 }
-.file-preview img{
-  width:100%;
-  display:block;
-}
+.file-preview img{ width:100%; display:block; }
 
 /* Botón único */
 .form-actions{
@@ -474,19 +468,11 @@ body:after{
   background:#2476d9;
   color:white;
 }
-.btn-primary:hover:not(:disabled){
-  background:#2f8bf0;
-}
+.btn-primary:hover:not(:disabled){ background:#2f8bf0; }
 .btn-primary:disabled{opacity:.6;cursor:not-allowed}
 
 /* Mensaje */
-.msg{
-  display:none;
-  margin-top:16px;
-  font-size:12.5px;
-  align-items:center;
-  gap:9px;
-}
+.msg{ display:none; margin-top:16px; font-size:12.5px; align-items:center; gap:9px; }
 .msg.show{display:flex}
 .msg.error{
   padding:11px 13px;
@@ -495,20 +481,99 @@ body:after{
   border:1px solid #ff4d4d55;
   color:#ff9a9a;
 }
-/* MENSAJE DE ÉXITO: SOLO TEXTO VERDE SIN FONDO */
-.msg.success{
-  color:#65cf9a;
+.msg.success{ color:#65cf9a; font-weight:600; }
+
+/* ================= TABLA DE PRODUCTOS ================= */
+.table-container{
+  background:#0d1c30;
+  border:1px solid #1a2c42;
+  border-radius:12px;
+  overflow-x:auto; /* Scroll horizontal en celular */
+}
+table{
+  width:100%;
+  border-collapse:collapse;
+  text-align:left;
+  min-width: 600px; /* Fuerza un ancho mínimo para que la tabla no se aplaste */
+}
+th, td{
+  padding:14px 18px;
+  border-bottom:1px solid #142436;
+}
+th{
+  color:#7f93ad;
+  font-size:11px;
+  font-weight:700;
+  text-transform:uppercase;
+  letter-spacing:.5px;
+  background:#0a1626;
+}
+td{
+  font-size:13.5px;
+  color:#dce8f8;
+  vertical-align:middle;
+}
+tr:last-child td{ border-bottom:none; }
+tr:hover td{ background:#101f33; }
+
+.tbl-img{
+  width:42px;height:42px;
+  border-radius:6px;
+  object-fit:cover;
+  background:#071426;
+  border:1px solid #1a2c42;
+}
+.tbl-name{ font-weight:600; color:#f1f6ff; }
+.tbl-price{ color:#65cf9a; font-weight:700; }
+.tbl-cat{
+  display:inline-block;
+  background:#16324f;
+  color:#8dc2ff;
+  padding:3px 9px;
+  border-radius:20px;
+  font-size:11px;
   font-weight:600;
 }
 
-/* Overlay */
-.overlay{
-  display:none;
-  position:fixed;
-  inset:0;
-  background:#0009;
-  z-index:5;
+.actions-cell{
+  display:flex;
+  gap:8px;
 }
+.btn-icon{
+  width:32px;height:32px;
+  border-radius:8px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border:1px solid #1a2c42;
+  background:#0b1b30;
+  color:#9bb0c9;
+  cursor:pointer;
+  transition:.2s;
+  font-size:13px;
+}
+.btn-icon:hover{
+  transform:translateY(-2px);
+}
+.btn-icon.edit:hover{ color:#438eea; border-color:#438eea; background:#2476d915; }
+.btn-icon.delete:hover{ color:#ff4d4d; border-color:#ff4d4d; background:#ff4d4d15; }
+
+/* Loaders de la tabla */
+.table-loading, .table-empty{
+  padding:40px;
+  text-align:center;
+  color:#7f93ad;
+  font-size:14px;
+}
+.table-loading i{
+  font-size:24px;
+  margin-bottom:10px;
+  color:#438eea;
+  display:block;
+}
+
+/* Overlay */
+.overlay{ display:none; position:fixed; inset:0; background:#0009; z-index:5; }
 .overlay.show{display:block}
 
 /* ================= RESPONSIVE ================= */
@@ -552,9 +617,13 @@ body:after{
   <div class="sidebar-label">Menú</div>
 
   <nav class="sidebar-nav">
-    <a class="nav-tab active" data-tab="agregar">
+    <a class="nav-tab active" data-tab="vista-agregar">
       <i class="fa-solid fa-plus"></i>
       Agregar Productos
+    </a>
+    <a class="nav-tab" data-tab="vista-productos">
+      <i class="fa-solid fa-box"></i>
+      Productos
     </a>
   </nav>
 
@@ -568,7 +637,7 @@ body:after{
       <button class="menu-toggle" id="menuToggle" aria-label="Menú">
         <i class="fa-solid fa-bars"></i>
       </button>
-      <div class="topbar-title">
+      <div class="topbar-title" id="topbarTitle">
         <h1>Agregar <span>Producto</span></h1>
         <p>Añade nuevos productos a la tienda de Cisama</p>
       </div>
@@ -599,99 +668,121 @@ body:after{
     </div>
   </div>
 
-  <div class="card">
+  <!-- ================= VISTA: AGREGAR PRODUCTO ================= -->
+  <div id="vista-agregar" class="tab-content active">
+    <div class="card">
+      <div class="card-head">
+        <div class="card-head-icon">
+          <i class="fa-solid fa-box-open"></i>
+        </div>
+        <div>
+          <h2>Nuevo Producto</h2>
+          <p>Completa los datos para publicarlo en la tienda</p>
+        </div>
+      </div>
 
-    <div class="card-head">
-      <div class="card-head-icon">
-        <i class="fa-solid fa-box-open"></i>
-      </div>
-      <div>
-        <h2>Nuevo Producto</h2>
-        <p>Completa los datos para publicarlo en la tienda</p>
-      </div>
+      <form id="productForm" autocomplete="off">
+        <div class="form-grid">
+          <div class="field full">
+            <label for="name">Nombre del producto <span class="req">*</span></label>
+            <div class="input-wrap">
+              <input type="text" id="name" placeholder="Nombre" required>
+              <i class="fa-solid fa-tag"></i>
+            </div>
+          </div>
+
+          <div class="field full">
+            <label for="description">Descripción <span class="req">*</span></label>
+            <div class="input-wrap">
+              <textarea id="description" placeholder="Describe el producto brevemente..." required></textarea>
+              <i class="fa-solid fa-align-left"></i>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="price">Precio (RD$) <span class="req">*</span></label>
+            <div class="input-wrap">
+              <input type="number" id="price" placeholder="0.00" step="0.01" min="0" required>
+              <i class="fa-solid fa-dollar-sign"></i>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="stock">Stock disponible <span class="req">*</span></label>
+            <div class="input-wrap">
+              <input type="number" id="stock" placeholder="0" min="0" step="1" required>
+              <i class="fa-solid fa-boxes-stacked"></i>
+            </div>
+          </div>
+
+          <div class="field full">
+            <label for="category">Categoría <span class="req">*</span></label>
+            <div class="input-wrap">
+              <select id="category" required>
+                <option value="">Selecciona una categoría</option>
+                <option value="Uniformes">Uniformes</option>
+                <option value="Camisas">Camisas</option>
+                <option value="Pantalones">Pantalones</option>
+                <option value="Accesorios">Accesorios</option>
+                <option value="Calzado">Calzado</option>
+                <option value="Otros">Otros</option>
+              </select>
+              <i class="fa-solid fa-layer-group"></i>
+            </div>
+          </div>
+
+          <div class="field full">
+            <label>Imagen del producto</label>
+            <div class="file-btn-wrap">
+              <label class="file-btn" id="fileBtnLabel">
+                <input type="file" id="image" accept="image/*">
+                <i class="fa-solid fa-folder-open" id="fileIcon"></i>
+                <span id="fileText">Seleccionar Imagen</span>
+              </label>
+            </div>
+            <div class="file-preview" id="filePreview">
+              <img id="previewImg" src="" alt="Preview">
+            </div>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary" id="btnSubmit">
+            <i class="fa-solid fa-plus"></i>
+            Agregar Producto
+          </button>
+        </div>
+
+        <div class="msg" id="msg"></div>
+      </form>
     </div>
+  </div>
 
-    <form id="productForm" autocomplete="off">
-
-      <div class="form-grid">
-
-        <div class="field full">
-          <label for="name">Nombre del producto <span class="req">*</span></label>
-          <div class="input-wrap">
-            <input type="text" id="name" placeholder="Nombre" required>
-            <i class="fa-solid fa-tag"></i>
-          </div>
-        </div>
-
-        <div class="field full">
-          <label for="description">Descripción <span class="req">*</span></label>
-          <div class="input-wrap">
-            <textarea id="description" placeholder="Describe el producto brevemente..." required></textarea>
-            <i class="fa-solid fa-align-left"></i>
-          </div>
-        </div>
-
-        <div class="field">
-          <label for="price">Precio (RD$) <span class="req">*</span></label>
-          <div class="input-wrap">
-            <input type="number" id="price" placeholder="0.00" step="0.01" min="0" required>
-            <i class="fa-solid fa-dollar-sign"></i>
-          </div>
-        </div>
-
-        <div class="field">
-          <label for="stock">Stock disponible <span class="req">*</span></label>
-          <div class="input-wrap">
-            <input type="number" id="stock" placeholder="0" min="0" step="1" required>
-            <i class="fa-solid fa-boxes-stacked"></i>
-          </div>
-        </div>
-
-        <div class="field full">
-          <label for="category">Categoría <span class="req">*</span></label>
-          <div class="input-wrap">
-            <select id="category" required>
-              <option value="">Selecciona una categoría</option>
-              <option value="Uniformes">Uniformes</option>
-              <option value="Camisas">Camisas</option>
-              <option value="Pantalones">Pantalones</option>
-              <option value="Accesorios">Accesorios</option>
-              <option value="Calzado">Calzado</option>
-              <option value="Otros">Otros</option>
-            </select>
-            <i class="fa-solid fa-layer-group"></i>
-          </div>
-        </div>
-
-        <div class="field full">
-          <label>Imagen del producto</label>
-          <!-- BOTÓN PARA SUBIR IMAGEN -->
-          <div class="file-btn-wrap">
-            <label class="file-btn" id="fileBtnLabel">
-              <input type="file" id="image" accept="image/*">
-              <i class="fa-solid fa-folder-open" id="fileIcon"></i>
-              <span id="fileText">Seleccionar Imagen</span>
-            </label>
-          </div>
-          
-          <div class="file-preview" id="filePreview">
-            <img id="previewImg" src="" alt="Preview">
-          </div>
-        </div>
-
-      </div>
-
-      <div class="form-actions">
-        <button type="submit" class="btn btn-primary" id="btnSubmit">
-          <i class="fa-solid fa-plus"></i>
-          Agregar Producto
-        </button>
-      </div>
-
-      <div class="msg" id="msg"></div>
-
-    </form>
-
+  <!-- ================= VISTA: TABLA DE PRODUCTOS ================= -->
+  <div id="vista-productos" class="tab-content">
+    <div class="table-container">
+      <table id="productosTable">
+        <thead>
+          <tr>
+            <th>Img</th>
+            <th>Nombre</th>
+            <th>Categoría</th>
+            <th>Precio</th>
+            <th>Stock</th>
+            <th style="text-align:right">Acciones</th>
+          </tr>
+        </thead>
+        <tbody id="productosBody">
+          <!-- Aquí se cargan los productos con JS -->
+          <tr>
+            <td colspan="6" class="table-loading">
+              <i class="fa-solid fa-spinner fa-spin"></i>
+              Cargando productos...
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 
 </main>
@@ -703,6 +794,7 @@ body:after{
 // ============================
 const LOGIN_URL = "index.html";
 const API_PRODUCTOS = "https://api-chicken-runner.monitorealo.online/api/agregar_producto";
+const API_GET_PRODUCTOS = "https://api-chicken-runner.monitorealo.online/api/productos";
 
 // ============================
 // VERIFICAR TOKEN
@@ -728,14 +820,12 @@ profileBtn.addEventListener('click', (e) => {
   profileWrap.classList.toggle('open');
 });
 
-// Cerrar al hacer click fuera
 document.addEventListener('click', (e) => {
   if(!profileWrap.contains(e.target)){
     profileWrap.classList.remove('open');
   }
 });
 
-// Cerrar sesión
 document.getElementById('btnLogout').addEventListener('click', () => {
   localStorage.removeItem('adminToken');
   localStorage.removeItem('adminName');
@@ -761,17 +851,139 @@ overlay.addEventListener('click', () => {
 });
 
 // ============================
-// TABS
+// SISTEMA DE TABS
 // ============================
+const tabAgregar = document.getElementById('vista-agregar');
+const tabProductos = document.getElementById('vista-productos');
+const titleHTML = document.getElementById('topbarTitle').innerHTML;
+
 document.querySelectorAll('.nav-tab').forEach(tab => {
   tab.addEventListener('click', () => {
+    // 1. Cambiar tab activo en el menú
     document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
     tab.classList.add('active');
+
+    // 2. Ocultar todas las vistas
+    document.querySelectorAll('.tab-content').forEach(v => v.classList.remove('active'));
+
+    // 3. Mostrar la vista que toca
+    const targetId = tab.dataset.tab;
+    document.getElementById(targetId).classList.add('active');
+
+    // 4. Actualizar el título de arriba
+    if(targetId === 'vista-agregar'){
+      document.getElementById('topbarTitle').innerHTML = `
+        <h1>Agregar <span>Producto</span></h1>
+        <p>Añade nuevos productos a la tienda de Cisama</p>
+      `;
+    } else if(targetId === 'vista-productos'){
+      document.getElementById('topbarTitle').innerHTML = `
+        <h1>Administrar <span>Productos</span></h1>
+        <p>Gestiona el inventario actual de la tienda</p>
+      `;
+      cargarTablaProductos(); // Cargar la tabla cuando se abre
+    }
+
+    // Cerrar sidebar en móvil
+    if(window.innerWidth <= 900){
+      sidebar.classList.remove('open');
+      overlay.classList.remove('show');
+    }
   });
 });
 
 // ============================
-// PREVIEW IMAGEN Y ESTILOS DEL BOTÓN
+// CARGAR TABLA DE PRODUCTOS
+// ============================
+const tbody = document.getElementById('productosBody');
+
+async function cargarTablaProductos() {
+  tbody.innerHTML = `
+    <tr>
+      <td colspan="6" class="table-loading">
+        <i class="fa-solid fa-spinner fa-spin"></i>
+        Cargando productos...
+      </td>
+    </tr>
+  `;
+
+  try {
+    const res = await fetch(API_GET_PRODUCTOS);
+    if(!res.ok) throw new Error('Error al obtener productos');
+    
+    const data = await res.json();
+    const productos = data.productos || [];
+
+    if(productos.length === 0){
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="6" class="table-empty">
+            <i class="fa-solid fa-box-open" style="font-size:24px; display:block; margin-bottom:8px; color:#438eea"></i>
+            No hay productos registrados aún.
+          </td>
+        </tr>
+      `;
+      return;
+    }
+
+    tbody.innerHTML = '';
+    productos.forEach(p => {
+      const tr = document.createElement('tr');
+      
+      const precioFormat = parseFloat(p.price).toLocaleString('es-DO', { minimumFractionDigits: 2 });
+      
+      tr.innerHTML = `
+        <td>
+          <img src="${p.image || 'data:image/svg+xml;utf8,<svg xmlns=\\'http://www.w3.org/2000/svg\\' width=\\'42\\' height=\\'42\\'><rect width=\\'42\\' height=\\'42\\' fill=\\'%23071426\\'/></svg>'}" class="tbl-img" alt="img">
+        </td>
+        <td class="tbl-name">${p.name}</td>
+        <td><span class="tbl-cat">${p.category}</span></td>
+        <td class="tbl-price">RD$ ${precioFormat}</td>
+        <td>${p.stock}</td>
+        <td>
+          <div class="actions-cell" style="justify-content:flex-end">
+            <button class="btn-icon edit" title="Editar producto" onclick="editarProducto(${p.id})">
+              <i class="fa-solid fa-pen"></i>
+            </button>
+            <button class="btn-icon delete" title="Eliminar producto" onclick="eliminarProducto(${p.id})">
+              <i class="fa-solid fa-trash"></i>
+            </button>
+          </div>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+
+  } catch (error) {
+    console.error('Error cargando tabla:', error);
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="6" class="table-empty" style="color:#ff8585">
+          <i class="fa-solid fa-triangle-exclamation" style="font-size:24px; display:block; margin-bottom:8px;"></i>
+          Error al conectar con el servidor.
+        </td>
+      </tr>
+    `;
+  }
+}
+
+// ============================
+// FUNCIONES EDITAR Y ELIMINAR
+// ============================
+function editarProducto(id) {
+  alert(`Aquí irá la lógica para editar el producto con ID: ${id}`);
+  // Aquí conectarás tu API de editar
+}
+
+function eliminarProducto(id) {
+  if(confirm(`¿Estás seguro que deseas eliminar el producto con ID ${id}?`)){
+    alert(`Aquí irá la lógica para eliminar el producto con ID: ${id}`);
+    // Aquí conectarás tu API de eliminar
+  }
+}
+
+// ============================
+// PREVIEW IMAGEN
 // ============================
 const imageInput = document.getElementById('image');
 const fileText = document.getElementById('fileText');
@@ -790,12 +1002,10 @@ imageInput.addEventListener('change', () => {
     return;
   }
   
-  // Cambiamos el texto y el ícono para dar feedback visual
   fileText.textContent = file.name;
   fileIcon.className = 'fa-solid fa-check-circle';
   fileBtnLabel.classList.add('has-file');
 
-  // Mostramos la previsualización
   const reader = new FileReader();
   reader.onload = (e) => {
     previewImg.src = e.target.result;
@@ -805,7 +1015,7 @@ imageInput.addEventListener('change', () => {
 });
 
 // ============================
-// MENSAJES
+// MENSAJES (FORMULARIO AGREGAR)
 // ============================
 const msg = document.getElementById('msg');
 function mostrarMsg(texto, tipo){
@@ -818,7 +1028,7 @@ function ocultarMsg(){
 }
 
 // ============================
-// SUBMIT FORMULARIO
+// SUBMIT AGREGAR
 // ============================
 const form = document.getElementById('productForm');
 const btnSubmit = document.getElementById('btnSubmit');
@@ -838,14 +1048,6 @@ form.addEventListener('submit', async (e) => {
     mostrarMsg('Completa todos los campos obligatorios', 'error');
     return;
   }
-  if(!Number.isFinite(price) || price < 0){
-    mostrarMsg('El precio debe ser un número válido', 'error');
-    return;
-  }
-  if(!Number.isFinite(stock) || stock < 0){
-    mostrarMsg('El stock debe ser un número válido', 'error');
-    return;
-  }
 
   btnSubmit.disabled = true;
   btnSubmit.innerHTML = '<span>Guardando...</span><i class="fa-solid fa-spinner fa-spin"></i>';
@@ -857,45 +1059,19 @@ form.addEventListener('submit', async (e) => {
     formData.append('price', price);
     formData.append('stock', stock);
     formData.append('category', category);
-    if(imageFile){
-      formData.append('image', imageFile);
-    }
+    if(imageFile) formData.append('image', imageFile);
 
     const res = await fetch(API_PRODUCTOS, {
       method: 'POST',
-      headers: {
-        'Authorization': 'Bearer ' + token
-      },
+      headers: { 'Authorization': 'Bearer ' + token },
       body: formData
     });
 
     let data;
-    try { data = await res.json(); }
-    catch { throw new Error('Respuesta inválida del servidor'); }
+    try { data = await res.json(); } catch { throw new Error('Respuesta inválida del servidor'); }
 
     if(!res.ok || data.status === false){
       throw new Error(data.mensaje || 'No se pudo agregar el producto');
     }
 
-    mostrarMsg(data.mensaje || '¡Producto agregado con éxito!', 'success');
-
-    // Limpia el form automáticamente
-    form.reset();
-    fileText.textContent = 'Seleccionar Imagen';
-    fileIcon.className = 'fa-solid fa-folder-open';
-    fileBtnLabel.classList.remove('has-file');
-    filePreview.style.display = 'none';
-
-  } catch (err) {
-    console.error('Error al agregar producto:', err);
-    mostrarMsg(err.message || 'Error al guardar el producto', 'error');
-  } finally {
-    btnSubmit.disabled = false;
-    btnSubmit.innerHTML = '<i class="fa-solid fa-plus"></i> Agregar Producto';
-  }
-});
-
-</script>
-
-</body>
-</html>
+    mostrarMsg(data.mensaje || '¡Producto
