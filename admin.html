@@ -489,13 +489,13 @@ body:after{
   background:#0d1c30;
   border:1px solid #1a2c42;
   border-radius:12px;
-  overflow-x:auto; /* Scroll horizontal en celular */
+  overflow-x:auto; 
 }
 table{
   width:100%;
   border-collapse:collapse;
   text-align:left;
-  min-width: 600px; /* Fuerza un ancho mínimo para que la tabla no se aplaste */
+  min-width: 600px;
 }
 th, td{
   padding:14px 18px;
@@ -577,6 +577,131 @@ tr:hover td{ background:#101f33; }
 .overlay{ display:none; position:fixed; inset:0; background:#0009; z-index:5; }
 .overlay.show{display:block}
 
+/* ================= MODALES ================= */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: #000a;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  opacity: 0;
+  visibility: hidden;
+  transition: all .25s ease;
+}
+.modal-overlay.show {
+  opacity: 1;
+  visibility: visible;
+}
+
+.modal-content {
+  background: #0d1c30;
+  border: 1px solid #1a2c42;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 480px;
+  box-shadow: 0 20px 50px #0009;
+  transform: translateY(20px) scale(.95);
+  transition: all .25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  overflow: hidden;
+}
+.modal-overlay.show .modal-content {
+  transform: translateY(0) scale(1);
+}
+
+/* Cabecera del modal */
+.modal-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 20px 24px;
+  border-bottom: 1px solid #142436;
+  background: #0a1626;
+}
+.modal-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+.modal-icon.danger { background: #ff4d4d18; color: #ff4d4d; border: 1px solid #ff4d4d33; }
+.modal-icon.info { background: #2476d918; color: #438eea; border: 1px solid #2476d933; }
+
+.modal-header-text h3 {
+  font-size: 16px;
+  font-weight: 700;
+  color: white;
+  margin-bottom: 2px;
+}
+.modal-header-text p {
+  font-size: 12px;
+  color: #7f93ad;
+}
+
+/* Cuerpo del modal */
+.modal-body {
+  padding: 24px;
+}
+.modal-body p {
+  font-size: 14px;
+  color: #dce8f8;
+  line-height: 1.5;
+}
+.modal-body strong {
+  color: white;
+}
+
+/* Footer del modal */
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 16px 24px;
+  border-top: 1px solid #142436;
+  background: #0a1626;
+}
+.btn-cancel {
+  background: transparent;
+  border: 1px solid #1a2c42;
+  color: #9bb0c9;
+}
+.btn-cancel:hover {
+  background: #101f33;
+  color: white;
+}
+.btn-danger {
+  background: #ff4d4d;
+  color: white;
+  border: none;
+}
+.btn-danger:hover {
+  background: #ff3333;
+  box-shadow: 0 4px 12px #ff4d4d55;
+}
+
+/* Formulario dentro del modal (Editar) */
+.modal-form .form-grid {
+  gap: 12px;
+}
+.modal-form .field label { margin-bottom: 4px; font-size: 10.5px; }
+.modal-form .input-wrap input,
+.modal-form .input-wrap select,
+.modal-form .input-wrap textarea {
+  background: #071426;
+  font-size: 12.5px;
+  padding: 10px 12px 10px 34px;
+}
+.modal-form .input-wrap > i { left: 12px; font-size: 11px; }
+
+
 /* ================= RESPONSIVE ================= */
 @media(max-width:900px){
   .sidebar{
@@ -600,6 +725,7 @@ tr:hover td{ background:#101f33; }
   .card{padding:20px 16px 22px}
   .card-head h2{font-size:14px}
   .btn{width:100%;justify-content:center}
+  .modal-footer { flex-direction: column-reverse; }
 }
 </style>
 </head>
@@ -774,7 +900,6 @@ tr:hover td{ background:#101f33; }
           </tr>
         </thead>
         <tbody id="productosBody">
-          <!-- Aquí se cargan los productos con JS -->
           <tr>
             <td colspan="6" class="table-loading">
               <i class="fa-solid fa-spinner fa-spin"></i>
@@ -788,6 +913,92 @@ tr:hover td{ background:#101f33; }
 
 </main>
 
+<!-- ================= MODAL ELIMINAR ================= -->
+<div class="modal-overlay" id="modalEliminar">
+  <div class="modal-content">
+    <div class="modal-header">
+      <div class="modal-icon danger"><i class="fa-solid fa-trash-can"></i></div>
+      <div class="modal-header-text">
+        <h3>Eliminar producto</h3>
+        <p>Esta acción no se puede deshacer</p>
+      </div>
+    </div>
+    <div class="modal-body">
+      <p>¿Estás seguro de que deseas eliminar el producto <strong id="deleteProductName">...</strong>?</p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-cancel" onclick="cerrarModalEliminar()">Cancelar</button>
+      <button class="btn btn-danger" id="btnConfirmDelete"><i class="fa-solid fa-trash"></i> Sí, eliminar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================= MODAL EDITAR ================= -->
+<div class="modal-overlay" id="modalEditar">
+  <div class="modal-content" style="max-width: 600px;">
+    <div class="modal-header">
+      <div class="modal-icon info"><i class="fa-solid fa-pen"></i></div>
+      <div class="modal-header-text">
+        <h3>Editar producto</h3>
+        <p>Actualiza los datos del producto</p>
+      </div>
+    </div>
+    <div class="modal-body">
+      <form id="formEditar" class="modal-form">
+        <input type="hidden" id="edit-id">
+        <div class="form-grid">
+          <div class="field full">
+            <label>Nombre</label>
+            <div class="input-wrap">
+              <input type="text" id="edit-name" required>
+              <i class="fa-solid fa-tag"></i>
+            </div>
+          </div>
+          <div class="field full">
+            <label>Descripción</label>
+            <div class="input-wrap">
+              <textarea id="edit-description" required></textarea>
+              <i class="fa-solid fa-align-left"></i>
+            </div>
+          </div>
+          <div class="field">
+            <label>Precio (RD$)</label>
+            <div class="input-wrap">
+              <input type="number" id="edit-price" step="0.01" min="0" required>
+              <i class="fa-solid fa-dollar-sign"></i>
+            </div>
+          </div>
+          <div class="field">
+            <label>Stock</label>
+            <div class="input-wrap">
+              <input type="number" id="edit-stock" min="0" step="1" required>
+              <i class="fa-solid fa-boxes-stacked"></i>
+            </div>
+          </div>
+          <div class="field full">
+            <label>Categoría</label>
+            <div class="input-wrap">
+              <select id="edit-category" required>
+                <option value="Uniformes">Uniformes</option>
+                <option value="Camisas">Camisas</option>
+                <option value="Pantalones">Pantalones</option>
+                <option value="Accesorios">Accesorios</option>
+                <option value="Calzado">Calzado</option>
+                <option value="Otros">Otros</option>
+              </select>
+              <i class="fa-solid fa-layer-group"></i>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-cancel" onclick="cerrarModalEditar()">Cancelar</button>
+      <button class="btn btn-primary" id="btnConfirmEdit"><i class="fa-solid fa-floppy-disk"></i> Guardar cambios</button>
+    </div>
+  </div>
+</div>
+
 <script>
 
 // ============================
@@ -798,11 +1009,12 @@ const API_PRODUCTOS = "https://api-chicken-runner.monitorealo.online/api/agregar
 const API_GET_PRODUCTOS = "https://api-chicken-runner.monitorealo.online/api/productos";
 
 // ============================
-// VERIFICAR TOKEN (COMENTADO PARA PROBAR)
+// VERIFICAR TOKEN
 // ============================
 const token = localStorage.getItem('adminToken') || sessionStorage.getItem('adminToken');
 const adminName = localStorage.getItem('adminName') || sessionStorage.getItem('adminName') || 'Admin';
 
+/* Descomentar esto cuando el login esté en producción */
 /*
 if(!token){
   window.location.href = LOGIN_URL;
@@ -862,18 +1074,14 @@ tabs.forEach(tab => {
   tab.addEventListener('click', (e) => {
     e.preventDefault(); 
     
-    // 1. Cambiar tab activo en el menú
     tabs.forEach(t => t.classList.remove('active'));
     tab.classList.add('active');
 
-    // 2. Ocultar todas las vistas
     document.querySelectorAll('.tab-content').forEach(v => v.classList.remove('active'));
 
-    // 3. Mostrar la vista que toca
     const targetId = tab.dataset.tab;
     document.getElementById(targetId).classList.add('active');
 
-    // 4. Actualizar el título de arriba
     if(targetId === 'vista-agregar'){
       document.getElementById('topbarTitle').innerHTML = `
         <h1>Agregar <span>Producto</span></h1>
@@ -884,10 +1092,9 @@ tabs.forEach(tab => {
         <h1>Administrar <span>Productos</span></h1>
         <p>Gestiona el inventario actual de la tienda</p>
       `;
-      cargarTablaProductos(); // Cargar la tabla cuando se abre
+      cargarTablaProductos(); 
     }
 
-    // Cerrar sidebar en móvil
     if(window.innerWidth <= 900){
       sidebar.classList.remove('open');
       overlay.classList.remove('show');
@@ -896,10 +1103,14 @@ tabs.forEach(tab => {
 });
 
 // ============================
-// CARGAR TABLA DE PRODUCTOS
+// VARIABLES GLOBALES (para modales)
 // ============================
 const tbody = document.getElementById('productosBody');
+let productoAEliminarId = null;
 
+// ============================
+// CARGAR TABLA DE PRODUCTOS
+// ============================
 async function cargarTablaProductos() {
   tbody.innerHTML = `
     <tr>
@@ -933,24 +1144,21 @@ async function cargarTablaProductos() {
     productos.forEach(p => {
       const tr = document.createElement('tr');
       const precioFormat = parseFloat(p.price).toLocaleString('es-DO', { minimumFractionDigits: 2 });
-      
-      // SOLUCIÓN AL ERROR: Usar una imagen por defecto limpia sin comillas raras
       const urlImagen = p.image ? p.image : 'https://via.placeholder.com/42x42/071426/438eea?text=IMG';
 
+      // Se guardan los datos en el DOM para no tener que buscarlos luego
       tr.innerHTML = `
-        <td>
-          <img src="${urlImagen}" class="tbl-img" alt="img">
-        </td>
+        <td><img src="${urlImagen}" class="tbl-img" alt="img"></td>
         <td class="tbl-name">${p.name}</td>
         <td><span class="tbl-cat">${p.category}</span></td>
         <td class="tbl-price">RD$ ${precioFormat}</td>
         <td>${p.stock}</td>
         <td>
           <div class="actions-cell" style="justify-content:flex-end">
-            <button class="btn-icon edit" title="Editar producto" onclick="editarProducto(${p.id})">
+            <button class="btn-icon edit" title="Editar producto" onclick='abrirModalEditar(${JSON.stringify(p)})'>
               <i class="fa-solid fa-pen"></i>
             </button>
-            <button class="btn-icon delete" title="Eliminar producto" onclick="eliminarProducto(${p.id})">
+            <button class="btn-icon delete" title="Eliminar producto" onclick="abrirModalEliminar(${p.id}, '${p.name.replace(/'/g, "\\'")}')">
               <i class="fa-solid fa-trash"></i>
             </button>
           </div>
@@ -973,20 +1181,107 @@ async function cargarTablaProductos() {
 }
 
 // ============================
-// FUNCIONES EDITAR Y ELIMINAR
+// MODAL ELIMINAR
 // ============================
-function editarProducto(id) {
-  alert(`Aquí irá la lógica para editar el producto con ID: ${id}`);
+function abrirModalEliminar(id, nombre) {
+  productoAEliminarId = id;
+  document.getElementById('deleteProductName').textContent = nombre;
+  document.getElementById('modalEliminar').classList.add('show');
 }
 
-function eliminarProducto(id) {
-  if(confirm(`¿Estás seguro que deseas eliminar el producto con ID ${id}?`)){
-    alert(`Aquí irá la lógica para eliminar el producto con ID: ${id}`);
+function cerrarModalEliminar() {
+  document.getElementById('modalEliminar').classList.remove('show');
+  productoAEliminarId = null;
+}
+
+document.getElementById('btnConfirmDelete').addEventListener('click', async () => {
+  if(!productoAEliminarId) return;
+  
+  const btn = document.getElementById('btnConfirmDelete');
+  btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Eliminando...';
+  btn.disabled = true;
+
+  try {
+    // AQUI IRÁ LA API PARA ELIMINAR
+    // Ejemplo: await fetch(`${API_PRODUCTOS}/${productoAEliminarId}`, { method: 'DELETE' });
+    await new Promise(r => setTimeout(r, 800)); // Simulando delay
+    
+    cerrarModalEliminar();
+    cargarTablaProductos(); 
+    
+  } catch (error) {
+    alert("Error al eliminar: " + error.message);
+  } finally {
+    btn.innerHTML = '<i class="fa-solid fa-trash"></i> Sí, eliminar';
+    btn.disabled = false;
   }
-}
+});
 
 // ============================
-// PREVIEW IMAGEN
+// MODAL EDITAR
+// ============================
+function abrirModalEditar(p) {
+  document.getElementById('edit-id').value = p.id;
+  document.getElementById('edit-name').value = p.name;
+  document.getElementById('edit-description').value = p.description;
+  document.getElementById('edit-price').value = p.price;
+  document.getElementById('edit-stock').value = p.stock;
+  document.getElementById('edit-category').value = p.category;
+  
+  document.getElementById('modalEditar').classList.add('show');
+}
+
+function cerrarModalEditar() {
+  document.getElementById('modalEditar').classList.remove('show');
+}
+
+document.getElementById('btnConfirmEdit').addEventListener('click', async (e) => {
+  e.preventDefault();
+  
+  const formEdit = document.getElementById('formEditar');
+  if(!formEdit.checkValidity()) {
+    formEdit.reportValidity();
+    return;
+  }
+
+  const id = document.getElementById('edit-id').value;
+  const name = document.getElementById('edit-name').value;
+  const description = document.getElementById('edit-description').value;
+  const price = document.getElementById('edit-price').value;
+  const stock = document.getElementById('edit-stock').value;
+  const category = document.getElementById('edit-category').value;
+
+  const btn = document.getElementById('btnConfirmEdit');
+  btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Guardando...';
+  btn.disabled = true;
+
+  try {
+    // AQUI IRÁ LA API PARA EDITAR
+    // Ejemplo: await fetch(`${API_PRODUCTOS}/${id}`, { method: 'PUT', body: JSON.stringify({...}) });
+    await new Promise(r => setTimeout(r, 800)); // Simulando delay
+    
+    cerrarModalEditar();
+    cargarTablaProductos(); 
+    
+  } catch (error) {
+    alert("Error al editar: " + error.message);
+  } finally {
+    btn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Guardar cambios';
+    btn.disabled = false;
+  }
+});
+
+// Cerrar modales si se hace clic fuera de la caja
+document.querySelectorAll('.modal-overlay').forEach(overlay => {
+  overlay.addEventListener('click', (e) => {
+    if(e.target === overlay) {
+      overlay.classList.remove('show');
+    }
+  });
+});
+
+// ============================
+// PREVIEW IMAGEN (FORMULARIO AGREGAR)
 // ============================
 const imageInput = document.getElementById('image');
 const fileText = document.getElementById('fileText');
@@ -1079,7 +1374,6 @@ form.addEventListener('submit', async (e) => {
 
     mostrarMsg(data.mensaje || '¡Producto agregado con éxito!', 'success');
 
-    // Limpia el form
     form.reset();
     fileText.textContent = 'Seleccionar Imagen';
     fileIcon.className = 'fa-solid fa-folder-open';
