@@ -1040,6 +1040,7 @@ const LOGIN_URL = "index.html";
 const API_AGREGAR_PRODUCTO = "https://api-chicken-runner.monitorealo.online/api/agregar_producto";
 const API_GET_PRODUCTOS = "https://api-chicken-runner.monitorealo.online/api/productos";
 const API_EDITAR_PRODUCTO = "https://api-chicken-runner.monitorealo.online/api/editar_productos";
+const API_ELIMINAR_PRODUCTO = "https://api-chicken-runner.monitorealo.online/api/eliminar_producto";
 
 // ============================
 // TOASTS (MENSAJES FLOTANTES)
@@ -1047,20 +1048,18 @@ const API_EDITAR_PRODUCTO = "https://api-chicken-runner.monitorealo.online/api/e
 function mostrarToast(mensaje, tipo) {
   const container = document.getElementById('toastContainer');
   const toast = document.createElement('div');
-  toast.className = `toast ${tipo}`; // 'success' o 'error'
+  toast.className = `toast ${tipo}`; 
   
   const icon = tipo === 'success' ? 'fa-circle-check' : 'fa-circle-exclamation';
   toast.innerHTML = `<i class="fa-solid ${icon}"></i> <span>${mensaje}</span>`;
   
   container.appendChild(toast);
   
-  // Animación de entrada
   setTimeout(() => toast.classList.add('show'), 10);
   
-  // Desaparece a los 3.5 segundos
   setTimeout(() => {
     toast.classList.remove('show');
-    setTimeout(() => toast.remove(), 300); // Espera a que termine la animación de salida para borrarlo del DOM
+    setTimeout(() => toast.remove(), 300); 
   }, 3500);
 }
 
@@ -1070,7 +1069,6 @@ function mostrarToast(mensaje, tipo) {
 const token = localStorage.getItem('adminToken') || sessionStorage.getItem('adminToken');
 const adminName = localStorage.getItem('adminName') || sessionStorage.getItem('adminName') || 'Admin';
 
-/* Descomentar cuando el login esté listo */
 /*
 if(!token){
   window.location.href = LOGIN_URL;
@@ -1257,16 +1255,32 @@ document.getElementById('btnConfirmDelete').addEventListener('click', async () =
   btn.disabled = true;
 
   try {
-    // AQUI IRÁ LA API PARA ELIMINAR
-    // Ejemplo: await fetch(`${API_PRODUCTOS}/${productoAEliminarId}`, { method: 'DELETE' });
-    await new Promise(r => setTimeout(r, 800)); // Simulando delay
-    
+    // CONEXIÓN CON LA API REAL DE ELIMINAR (MÉTODO DELETE)
+    const res = await fetch(API_ELIMINAR_PRODUCTO, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + token
+      },
+      body: JSON.stringify({
+        id: productoAEliminarId
+      })
+    });
+
+    const data = await res.json();
+
+    // Validamos que el servidor nos diga que todo bien (o status 205 como pusiste en Python)
+    if(!res.ok && data.status === false) {
+      throw new Error(data.mensaje || 'No se pudo eliminar el producto');
+    }
+
     cerrarModalEliminar();
-    cargarTablaProductos(); 
-    mostrarToast("Producto eliminado con éxito", "success");
+    cargarTablaProductos(); // Recargamos la tabla
+    mostrarToast(data.mensaje || "Producto eliminado correctamente", "success");
     
   } catch (error) {
-    mostrarToast("Error al eliminar: " + error.message, "error");
+    console.error("Error al eliminar:", error);
+    mostrarToast(error.message || "Error al eliminar el producto", "error");
   } finally {
     btn.innerHTML = '<i class="fa-solid fa-trash"></i> Sí, eliminar';
     btn.disabled = false;
@@ -1312,7 +1326,6 @@ document.getElementById('btnConfirmEdit').addEventListener('click', async (e) =>
   btn.disabled = true;
 
   try {
-    // CONEXIÓN REAL CON LA API DE EDITAR
     const res = await fetch(API_EDITAR_PRODUCTO, {
       method: 'POST',
       headers: {
@@ -1322,10 +1335,10 @@ document.getElementById('btnConfirmEdit').addEventListener('click', async (e) =>
       body: JSON.stringify({
         id: id,
         name: name,
-        descripcion: description, // Mapeado para tu API
-        precio: price,            // Mapeado para tu API
+        descripcion: description, 
+        precio: price,            
         stock: stock,
-        categoria: category       // Mapeado para tu API
+        categoria: category       
       })
     });
 
@@ -1335,14 +1348,13 @@ document.getElementById('btnConfirmEdit').addEventListener('click', async (e) =>
       throw new Error(data.mensaje || 'No se pudo editar el producto');
     }
 
-    // Si todo sale bien
     cerrarModalEditar();
-    cargarTablaProductos(); // Recargamos la tabla
+    cargarTablaProductos(); 
     mostrarToast(data.mensaje || "Producto actualizado correctamente", "success");
     
   } catch (error) {
     console.error("Error al editar:", error);
-    mostrarToast("Error al editar: " + error.message, "error");
+    mostrarToast(error.message || "Error al editar el producto", "error");
   } finally {
     btn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Guardar cambios';
     btn.disabled = false;
