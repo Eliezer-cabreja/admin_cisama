@@ -93,6 +93,7 @@ body:after{
   font-weight:500;
   cursor:pointer;
   transition:.2s;
+  user-select:none; /* Evita que se seleccione el texto al hacer doble clic */
 }
 .nav-tab i{
   font-size:13px;
@@ -853,14 +854,14 @@ overlay.addEventListener('click', () => {
 // ============================
 // SISTEMA DE TABS
 // ============================
-const tabAgregar = document.getElementById('vista-agregar');
-const tabProductos = document.getElementById('vista-productos');
-const titleHTML = document.getElementById('topbarTitle').innerHTML;
+const tabs = document.querySelectorAll('.nav-tab');
 
-document.querySelectorAll('.nav-tab').forEach(tab => {
-  tab.addEventListener('click', () => {
+tabs.forEach(tab => {
+  tab.addEventListener('click', (e) => {
+    e.preventDefault(); // Previene cualquier acción por defecto
+    
     // 1. Cambiar tab activo en el menú
-    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+    tabs.forEach(t => t.classList.remove('active'));
     tab.classList.add('active');
 
     // 2. Ocultar todas las vistas
