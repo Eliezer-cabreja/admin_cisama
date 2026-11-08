@@ -326,6 +326,16 @@ body:after{
 }
 .form-grid .full{grid-column:1/-1}
 
+/* Grid especial para tallas */
+.sizes-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 10px;
+}
+@media(max-width: 600px) {
+  .sizes-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
 .field label{
   display:block;
   font-size:11px;
@@ -811,7 +821,6 @@ tr:hover td{ background:#101f33; }
       </button>
 
       <div class="profile-menu">
-        <!-- SOLO DEJAMOS CERRAR SESIÓN -->
         <button class="profile-menu-item danger" id="btnLogout">
           <i class="fa-solid fa-right-from-bracket"></i>
           Cerrar sesión
@@ -860,14 +869,6 @@ tr:hover td{ background:#101f33; }
           </div>
 
           <div class="field">
-            <label for="stock">Stock disponible <span class="req">*</span></label>
-            <div class="input-wrap">
-              <input type="number" id="stock" placeholder="0" min="0" step="1" required>
-              <i class="fa-solid fa-boxes-stacked"></i>
-            </div>
-          </div>
-
-          <div class="field full">
             <label for="category">Categoría <span class="req">*</span></label>
             <div class="input-wrap">
               <select id="category" required>
@@ -880,6 +881,30 @@ tr:hover td{ background:#101f33; }
                 <option value="Otros">Otros</option>
               </select>
               <i class="fa-solid fa-layer-group"></i>
+            </div>
+          </div>
+
+          <div class="field full">
+            <label>Cantidad por Talla <span class="req">*</span></label>
+            <div class="sizes-grid">
+              <div class="input-wrap">
+                <input type="number" id="cantidad_XS" placeholder="XS" min="0" value="0" required>
+              </div>
+              <div class="input-wrap">
+                <input type="number" id="cantidad_S" placeholder="S" min="0" value="0" required>
+              </div>
+              <div class="input-wrap">
+                <input type="number" id="cantidad_M" placeholder="M" min="0" value="0" required>
+              </div>
+              <div class="input-wrap">
+                <input type="number" id="cantidad_L" placeholder="L" min="0" value="0" required>
+              </div>
+              <div class="input-wrap">
+                <input type="number" id="cantidad_XL" placeholder="XL" min="0" value="0" required>
+              </div>
+              <div class="input-wrap">
+                <input type="number" id="cantidad_XXL" placeholder="XXL" min="0" value="0" required>
+              </div>
             </div>
           </div>
 
@@ -918,7 +943,7 @@ tr:hover td{ background:#101f33; }
             <th>Nombre</th>
             <th>Categoría</th>
             <th>Precio</th>
-            <th>Stock</th>
+            <th>Stock (Tallas)</th>
             <th style="text-align:right">Acciones</th>
           </tr>
         </thead>
@@ -992,13 +1017,6 @@ tr:hover td{ background:#101f33; }
             </div>
           </div>
           <div class="field">
-            <label>Stock</label>
-            <div class="input-wrap">
-              <input type="number" id="edit-stock" min="0" step="1" required>
-              <i class="fa-solid fa-boxes-stacked"></i>
-            </div>
-          </div>
-          <div class="field full">
             <label>Categoría</label>
             <div class="input-wrap">
               <select id="edit-category" required>
@@ -1012,6 +1030,31 @@ tr:hover td{ background:#101f33; }
               <i class="fa-solid fa-layer-group"></i>
             </div>
           </div>
+
+          <div class="field full">
+            <label>Cantidad por Talla</label>
+            <div class="sizes-grid">
+              <div class="input-wrap">
+                <input type="number" id="edit-cantidad_XS" placeholder="XS" min="0" required>
+              </div>
+              <div class="input-wrap">
+                <input type="number" id="edit-cantidad_S" placeholder="S" min="0" required>
+              </div>
+              <div class="input-wrap">
+                <input type="number" id="edit-cantidad_M" placeholder="M" min="0" required>
+              </div>
+              <div class="input-wrap">
+                <input type="number" id="edit-cantidad_L" placeholder="L" min="0" required>
+              </div>
+              <div class="input-wrap">
+                <input type="number" id="edit-cantidad_XL" placeholder="XL" min="0" required>
+              </div>
+              <div class="input-wrap">
+                <input type="number" id="edit-cantidad_XXL" placeholder="XXL" min="0" required>
+              </div>
+            </div>
+          </div>
+
         </div>
       </form>
     </div>
@@ -1034,7 +1077,7 @@ const API_EDITAR_PRODUCTO = "https://api-chicken-runner.monitorealo.online/api/e
 const API_ELIMINAR_PRODUCTO = "https://api-chicken-runner.monitorealo.online/api/eliminar_producto";
 
 // ============================
-// TOASTS (MENSAJES FLOTANTES)
+// TOASTS
 // ============================
 function mostrarToast(mensaje, tipo) {
   const container = document.getElementById('toastContainer');
@@ -1045,9 +1088,7 @@ function mostrarToast(mensaje, tipo) {
   toast.innerHTML = `<i class="fa-solid ${icon}"></i> <span>${mensaje}</span>`;
   
   container.appendChild(toast);
-  
   setTimeout(() => toast.classList.add('show'), 10);
-  
   setTimeout(() => {
     toast.classList.remove('show');
     setTimeout(() => toast.remove(), 300); 
@@ -1060,6 +1101,7 @@ function mostrarToast(mensaje, tipo) {
 const token = localStorage.getItem('adminToken') || sessionStorage.getItem('adminToken');
 const adminName = localStorage.getItem('adminName') || sessionStorage.getItem('adminName') || 'Admin';
 
+/* Descomentar en producción */
 /*
 if(!token){
   window.location.href = LOGIN_URL;
@@ -1191,12 +1233,29 @@ async function cargarTablaProductos() {
       const precioFormat = parseFloat(p.price).toLocaleString('es-DO', { minimumFractionDigits: 2 });
       const urlImagen = p.image ? p.image : 'https://via.placeholder.com/42x42/071426/438eea?text=IMG';
 
+      // LÓGICA PARA RESUMIR EL STOCK
+      // Si tu API devuelve "stock" genérico (como antes) o las tallas individuales.
+      // Asumiremos que tu API ahora devuelve las propiedades cantidad_XS, cantidad_S, etc.
+      
+      let stockResumen = [];
+      if (p.cantidad_XS > 0) stockResumen.push(`XS:${p.cantidad_XS}`);
+      if (p.cantidad_S > 0) stockResumen.push(`S:${p.cantidad_S}`);
+      if (p.cantidad_M > 0) stockResumen.push(`M:${p.cantidad_M}`);
+      if (p.cantidad_L > 0) stockResumen.push(`L:${p.cantidad_L}`);
+      if (p.cantidad_XL > 0) stockResumen.push(`XL:${p.cantidad_XL}`);
+      if (p.cantidad_XXL > 0) stockResumen.push(`XXL:${p.cantidad_XXL}`);
+      
+      // Si el backend aún manda el campo "stock" viejo, lo mostramos como respaldo
+      let stockHTML = stockResumen.length > 0 
+        ? `<span style="font-size:11.5px;color:#9bb0c9;">${stockResumen.join(', ')}</span>` 
+        : `<span style="font-size:11.5px;color:#9bb0c9;">Sin stock</span>`;
+
       tr.innerHTML = `
         <td><img src="${urlImagen}" class="tbl-img" alt="img"></td>
         <td class="tbl-name">${p.name}</td>
         <td><span class="tbl-cat">${p.category}</span></td>
         <td class="tbl-price">RD$ ${precioFormat}</td>
-        <td>${p.stock}</td>
+        <td>${stockHTML}</td>
         <td>
           <div class="actions-cell" style="justify-content:flex-end">
             <button class="btn-icon edit" title="Editar producto" onclick='abrirModalEditar(${JSON.stringify(p)})'>
@@ -1284,8 +1343,15 @@ function abrirModalEditar(p) {
   document.getElementById('edit-name').value = p.name;
   document.getElementById('edit-description').value = p.description;
   document.getElementById('edit-price').value = p.price;
-  document.getElementById('edit-stock').value = p.stock;
   document.getElementById('edit-category').value = p.category;
+
+  // Cargar tallas (si vienen nulas, poner 0)
+  document.getElementById('edit-cantidad_XS').value = p.cantidad_XS || 0;
+  document.getElementById('edit-cantidad_S').value = p.cantidad_S || 0;
+  document.getElementById('edit-cantidad_M').value = p.cantidad_M || 0;
+  document.getElementById('edit-cantidad_L').value = p.cantidad_L || 0;
+  document.getElementById('edit-cantidad_XL').value = p.cantidad_XL || 0;
+  document.getElementById('edit-cantidad_XXL').value = p.cantidad_XXL || 0;
   
   document.getElementById('modalEditar').classList.add('show');
 }
@@ -1307,8 +1373,15 @@ document.getElementById('btnConfirmEdit').addEventListener('click', async (e) =>
   const name = document.getElementById('edit-name').value.trim();
   const description = document.getElementById('edit-description').value.trim();
   const price = parseFloat(document.getElementById('edit-price').value);
-  const stock = parseInt(document.getElementById('edit-stock').value);
   const category = document.getElementById('edit-category').value;
+  
+  // Tallas
+  const cantidad_XS = parseInt(document.getElementById('edit-cantidad_XS').value) || 0;
+  const cantidad_S = parseInt(document.getElementById('edit-cantidad_S').value) || 0;
+  const cantidad_M = parseInt(document.getElementById('edit-cantidad_M').value) || 0;
+  const cantidad_L = parseInt(document.getElementById('edit-cantidad_L').value) || 0;
+  const cantidad_XL = parseInt(document.getElementById('edit-cantidad_XL').value) || 0;
+  const cantidad_XXL = parseInt(document.getElementById('edit-cantidad_XXL').value) || 0;
 
   const btn = document.getElementById('btnConfirmEdit');
   btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Guardando...';
@@ -1326,8 +1399,13 @@ document.getElementById('btnConfirmEdit').addEventListener('click', async (e) =>
         name: name,
         descripcion: description, 
         precio: price,            
-        stock: stock,
-        categoria: category       
+        categoria: category,
+        cantidad_XS: cantidad_XS,
+        cantidad_S: cantidad_S,
+        cantidad_M: cantidad_M,
+        cantidad_L: cantidad_L,
+        cantidad_XL: cantidad_XL,
+        cantidad_XXL: cantidad_XXL
       })
     });
 
@@ -1403,9 +1481,16 @@ form.addEventListener('submit', async (e) => {
   const name = document.getElementById('name').value.trim();
   const description = document.getElementById('description').value.trim();
   const price = parseFloat(document.getElementById('price').value);
-  const stock = parseInt(document.getElementById('stock').value);
   const category = document.getElementById('category').value;
   const imageFile = imageInput.files[0];
+  
+  // Tallas
+  const cantidad_XS = parseInt(document.getElementById('cantidad_XS').value) || 0;
+  const cantidad_S = parseInt(document.getElementById('cantidad_S').value) || 0;
+  const cantidad_M = parseInt(document.getElementById('cantidad_M').value) || 0;
+  const cantidad_L = parseInt(document.getElementById('cantidad_L').value) || 0;
+  const cantidad_XL = parseInt(document.getElementById('cantidad_XL').value) || 0;
+  const cantidad_XXL = parseInt(document.getElementById('cantidad_XXL').value) || 0;
 
   if(!name || !description || !category){
     mostrarToast('Completa todos los campos obligatorios', 'error');
@@ -1420,9 +1505,16 @@ form.addEventListener('submit', async (e) => {
     formData.append('name', name);
     formData.append('description', description);
     formData.append('price', price);
-    formData.append('stock', stock);
     formData.append('category', category);
     if(imageFile) formData.append('image', imageFile);
+
+    // Mandamos las tallas a la API
+    formData.append('cantidad_XS', cantidad_XS);
+    formData.append('cantidad_S', cantidad_S);
+    formData.append('cantidad_M', cantidad_M);
+    formData.append('cantidad_L', cantidad_L);
+    formData.append('cantidad_XL', cantidad_XL);
+    formData.append('cantidad_XXL', cantidad_XXL);
 
     const res = await fetch(API_AGREGAR_PRODUCTO, {
       method: 'POST',
