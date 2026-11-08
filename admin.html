@@ -376,6 +376,21 @@ body:after{
 }
 .input-wrap input,
 .input-wrap select{height:42px}
+
+/* Para los inputs de tallas que van sin icono a la izquierda */
+.sizes-grid .input-wrap input {
+  padding: 11px 10px;
+  text-align: center;
+  font-weight: 700;
+  font-size: 14px;
+  color: #8dc2ff;
+}
+.sizes-grid .input-wrap input::placeholder {
+  color: #5d728d;
+  font-weight: 600;
+  font-size: 12px;
+}
+
 .input-wrap textarea{
   min-height:88px;
   resize:vertical;
@@ -690,6 +705,14 @@ tr:hover td{ background:#101f33; }
 }
 .modal-form .input-wrap > i { left: 12px; font-size: 11px; }
 
+/* Ajuste para inputs de talla dentro del modal */
+.modal-form .sizes-grid .input-wrap input {
+  padding: 10px 5px;
+  text-align: center;
+  font-weight: 700;
+  font-size: 13px;
+}
+
 /* ================= TOAST NOTIFICATIONS ================= */
 .toast-container {
   position: fixed;
@@ -884,26 +907,27 @@ tr:hover td{ background:#101f33; }
             </div>
           </div>
 
+          <!-- INPUTS DE TALLAS (SIN VALUE="0" PARA QUE SE VEA EL PLACEHOLDER) -->
           <div class="field full">
-            <label>Cantidad por Talla <span class="req">*</span></label>
+            <label>Cantidad por Talla</label>
             <div class="sizes-grid">
               <div class="input-wrap">
-                <input type="number" id="cantidad_XS" placeholder="XS" min="0" value="0" required>
+                <input type="number" id="cantidad_XS" placeholder="XS" min="0">
               </div>
               <div class="input-wrap">
-                <input type="number" id="cantidad_S" placeholder="S" min="0" value="0" required>
+                <input type="number" id="cantidad_S" placeholder="S" min="0">
               </div>
               <div class="input-wrap">
-                <input type="number" id="cantidad_M" placeholder="M" min="0" value="0" required>
+                <input type="number" id="cantidad_M" placeholder="M" min="0">
               </div>
               <div class="input-wrap">
-                <input type="number" id="cantidad_L" placeholder="L" min="0" value="0" required>
+                <input type="number" id="cantidad_L" placeholder="L" min="0">
               </div>
               <div class="input-wrap">
-                <input type="number" id="cantidad_XL" placeholder="XL" min="0" value="0" required>
+                <input type="number" id="cantidad_XL" placeholder="XL" min="0">
               </div>
               <div class="input-wrap">
-                <input type="number" id="cantidad_XXL" placeholder="XXL" min="0" value="0" required>
+                <input type="number" id="cantidad_XXL" placeholder="XXL" min="0">
               </div>
             </div>
           </div>
@@ -1035,22 +1059,22 @@ tr:hover td{ background:#101f33; }
             <label>Cantidad por Talla</label>
             <div class="sizes-grid">
               <div class="input-wrap">
-                <input type="number" id="edit-cantidad_XS" placeholder="XS" min="0" required>
+                <input type="number" id="edit-cantidad_XS" placeholder="XS" min="0">
               </div>
               <div class="input-wrap">
-                <input type="number" id="edit-cantidad_S" placeholder="S" min="0" required>
+                <input type="number" id="edit-cantidad_S" placeholder="S" min="0">
               </div>
               <div class="input-wrap">
-                <input type="number" id="edit-cantidad_M" placeholder="M" min="0" required>
+                <input type="number" id="edit-cantidad_M" placeholder="M" min="0">
               </div>
               <div class="input-wrap">
-                <input type="number" id="edit-cantidad_L" placeholder="L" min="0" required>
+                <input type="number" id="edit-cantidad_L" placeholder="L" min="0">
               </div>
               <div class="input-wrap">
-                <input type="number" id="edit-cantidad_XL" placeholder="XL" min="0" required>
+                <input type="number" id="edit-cantidad_XL" placeholder="XL" min="0">
               </div>
               <div class="input-wrap">
-                <input type="number" id="edit-cantidad_XXL" placeholder="XXL" min="0" required>
+                <input type="number" id="edit-cantidad_XXL" placeholder="XXL" min="0">
               </div>
             </div>
           </div>
@@ -1101,7 +1125,6 @@ function mostrarToast(mensaje, tipo) {
 const token = localStorage.getItem('adminToken') || sessionStorage.getItem('adminToken');
 const adminName = localStorage.getItem('adminName') || sessionStorage.getItem('adminName') || 'Admin';
 
-/* Descomentar en producción */
 /*
 if(!token){
   window.location.href = LOGIN_URL;
@@ -1233,10 +1256,7 @@ async function cargarTablaProductos() {
       const precioFormat = parseFloat(p.price).toLocaleString('es-DO', { minimumFractionDigits: 2 });
       const urlImagen = p.image ? p.image : 'https://via.placeholder.com/42x42/071426/438eea?text=IMG';
 
-      // LÓGICA PARA RESUMIR EL STOCK
-      // Si tu API devuelve "stock" genérico (como antes) o las tallas individuales.
-      // Asumiremos que tu API ahora devuelve las propiedades cantidad_XS, cantidad_S, etc.
-      
+      // RESUMEN DEL STOCK
       let stockResumen = [];
       if (p.cantidad_XS > 0) stockResumen.push(`XS:${p.cantidad_XS}`);
       if (p.cantidad_S > 0) stockResumen.push(`S:${p.cantidad_S}`);
@@ -1245,7 +1265,6 @@ async function cargarTablaProductos() {
       if (p.cantidad_XL > 0) stockResumen.push(`XL:${p.cantidad_XL}`);
       if (p.cantidad_XXL > 0) stockResumen.push(`XXL:${p.cantidad_XXL}`);
       
-      // Si el backend aún manda el campo "stock" viejo, lo mostramos como respaldo
       let stockHTML = stockResumen.length > 0 
         ? `<span style="font-size:11.5px;color:#9bb0c9;">${stockResumen.join(', ')}</span>` 
         : `<span style="font-size:11.5px;color:#9bb0c9;">Sin stock</span>`;
@@ -1345,13 +1364,13 @@ function abrirModalEditar(p) {
   document.getElementById('edit-price').value = p.price;
   document.getElementById('edit-category').value = p.category;
 
-  // Cargar tallas (si vienen nulas, poner 0)
-  document.getElementById('edit-cantidad_XS').value = p.cantidad_XS || 0;
-  document.getElementById('edit-cantidad_S').value = p.cantidad_S || 0;
-  document.getElementById('edit-cantidad_M').value = p.cantidad_M || 0;
-  document.getElementById('edit-cantidad_L').value = p.cantidad_L || 0;
-  document.getElementById('edit-cantidad_XL').value = p.cantidad_XL || 0;
-  document.getElementById('edit-cantidad_XXL').value = p.cantidad_XXL || 0;
+  // Cargar tallas
+  document.getElementById('edit-cantidad_XS').value = p.cantidad_XS || '';
+  document.getElementById('edit-cantidad_S').value = p.cantidad_S || '';
+  document.getElementById('edit-cantidad_M').value = p.cantidad_M || '';
+  document.getElementById('edit-cantidad_L').value = p.cantidad_L || '';
+  document.getElementById('edit-cantidad_XL').value = p.cantidad_XL || '';
+  document.getElementById('edit-cantidad_XXL').value = p.cantidad_XXL || '';
   
   document.getElementById('modalEditar').classList.add('show');
 }
@@ -1484,7 +1503,7 @@ form.addEventListener('submit', async (e) => {
   const category = document.getElementById('category').value;
   const imageFile = imageInput.files[0];
   
-  // Tallas
+  // Tallas (si están vacías, mandan 0)
   const cantidad_XS = parseInt(document.getElementById('cantidad_XS').value) || 0;
   const cantidad_S = parseInt(document.getElementById('cantidad_S').value) || 0;
   const cantidad_M = parseInt(document.getElementById('cantidad_M').value) || 0;
@@ -1508,7 +1527,7 @@ form.addEventListener('submit', async (e) => {
     formData.append('category', category);
     if(imageFile) formData.append('image', imageFile);
 
-    // Mandamos las tallas a la API
+    // Tallas
     formData.append('cantidad_XS', cantidad_XS);
     formData.append('cantidad_S', cantidad_S);
     formData.append('cantidad_M', cantidad_M);
